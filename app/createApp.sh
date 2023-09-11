@@ -18,14 +18,12 @@ fi
 # Get app name
 APP_NAME="$1"
 
-# Check if app name already exists, then create the application directory structure
-if [[ ! -d "$APP_NAME" ]]; then 
-    mkdir -p "$APP_NAME"
-    mkdir -p "$APP_NAME/build"
-    mkdir -p "$APP_NAME/include"
-    mkdir -p "$APP_NAME/src"
-    touch "$APP_NAME/CMakeLists.txt"
-else
+# Check if the app name already exists
+if [[ -d "$APP_NAME" ]]; then 
     echo "Application with name: \"$APP_NAME\" already exists!"
     exit 1
 fi
+
+# Create the application directory structure
+mkdir -p "$APP_NAME"/{build,include,src}
+touch "$APP_NAME/CMakeLists.txt"
