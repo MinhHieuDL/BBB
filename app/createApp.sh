@@ -1,11 +1,12 @@
 #!/bin/bash
 
 # This script create application directory with the structure below:
-#|app_name
-#├── build
-#├── include
-#└── src
-#└── CMakeLists.txt
+#
+# ├──app_name
+#       ├── build
+#       ├── include
+#       └── src
+#       └── CMakeLists.txt
 
 # Check if user already supplied app name  
 NUM_OF_PAR="${#}"
