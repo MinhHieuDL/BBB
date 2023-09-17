@@ -1,14 +1,15 @@
 #ifndef SEMA_WRAPPER_API
 #define SEMA_WRAPPER_API
 
-#define KEY int
-#define SEMA_ID int
+#include <sys/types.h>
+#include <sys/sem.h>
 
-SEMA_ID OS_Create_Sema(KEY keyNum);
-SEMA_ID OS_Get_Sema(KEY keyNum);
-void OS_Lock_Sema(SEMA_ID id);
-void OS_Release_Sema(SEMA_ID id);
-void OS_Delete_Sema(SEMA_ID id);
+typedef int _SEMA_ID;
+
+_SEMA_ID OS_Sema_Create(key_t keyNum);
+_SEMA_ID OS_Sema_Wait(key_t keyNum);
+void OS_Sema_Signal(_SEMA_ID id);
+void OS_Sema_Del(_SEMA_ID id);
 
 
 #endif
