@@ -22,12 +22,12 @@ _SEMA_ID OS_Sema_Create(key_t keyNum)
     return iSemaID;
 }
 
-void OS_Sema_Wait(key_t keyNum)
+int OS_Sema_Wait(key_t keyNum)
 {
-    int semID;
+    int semID, iRet;
     // create ops for V
     struct sembuf vsembuf ={
-        .sem_num = 1,
+        .sem_num = 0,
         .sem_op = -1,
         .sem_flg = SEM_UNDO
     };
@@ -35,18 +35,23 @@ void OS_Sema_Wait(key_t keyNum)
     semID = semget(keyNum, 1, 0777);
     if (semID == -1){
         perror("semget");
-        return;
+        return -1;
     }
     // Lock semaphore
-    semop(semID, &vsembuf, 1);
+    iRet = semop(semID, &vsembuf, 1);
+    if(iRet < 0)
+    {
+        perror("semop - wait:");
+    }
+    return iRet;
 }
 
-void OS_Sema_Signal(key_t keyNum)
+int OS_Sema_Signal(key_t keyNum)
 {
-    int semID;
+    int semID, iRet;
     // create ops for P
     struct sembuf psembuf ={
-        .sem_num = 1,
+        .sem_num = 0,
         .sem_op = 1,
         .sem_flg = SEM_UNDO
     };
@@ -54,10 +59,15 @@ void OS_Sema_Signal(key_t keyNum)
     semID = semget(keyNum, 1, 0777);
     if (semID == -1){
         perror("semget");
-        return;
+        return -1;
     }
     // Wake up process wait for semaphore increase
-    semop(semID, &psembuf, 1);
+    iRet = semop(semID, &psembuf, 1);
+    if(iRet < 0)
+    {
+        perror("semop - signal:");
+    }
+    return iRet;
 }
 
 int OS_Sema_Del(_SEMA_ID id)

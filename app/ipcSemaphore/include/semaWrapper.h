@@ -8,8 +8,8 @@
 typedef int _SEMA_ID;
 
 _SEMA_ID OS_Sema_Create(key_t keyNum);
-void OS_Sema_Wait(key_t keyNum);
-void OS_Sema_Signal(key_t keyNum);
+int OS_Sema_Wait(key_t keyNum);
+int OS_Sema_Signal(key_t keyNum);
 int OS_Sema_Del(_SEMA_ID id);
 
 
