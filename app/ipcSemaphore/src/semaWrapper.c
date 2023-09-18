@@ -22,14 +22,42 @@ _SEMA_ID OS_Sema_Create(key_t keyNum)
     return iSemaID;
 }
 
-_SEMA_ID OS_Sema_Wait(key_t keyNum)
+void OS_Sema_Wait(key_t keyNum)
 {
-    return 0;
+    int semID;
+    // create ops for V
+    struct sembuf vsembuf ={
+        .sem_num = 1,
+        .sem_op = -1,
+        .sem_flg = SEM_UNDO
+    };
+    // Get semaphore
+    semID = semget(keyNum, 1, 0777);
+    if (semID == -1){
+        perror("semget");
+        return;
+    }
+    // Lock semaphore
+    semop(semID, &vsembuf, 1);
 }
 
-void OS_Sema_Signal(_SEMA_ID id)
+void OS_Sema_Signal(key_t keyNum)
 {
-
+    int semID;
+    // create ops for P
+    struct sembuf psembuf ={
+        .sem_num = 1,
+        .sem_op = 1,
+        .sem_flg = SEM_UNDO
+    };
+    // Get semaphore
+    semID = semget(keyNum, 1, 0777);
+    if (semID == -1){
+        perror("semget");
+        return;
+    }
+    // Wake up process wait for semaphore increase
+    semop(semID, &psembuf, 1);
 }
 
 int OS_Sema_Del(_SEMA_ID id)
