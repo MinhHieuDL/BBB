@@ -7,18 +7,12 @@
 #define SEM_KEY 29
 
 void cleanup(int signal); // Declaration
-int semID;
+
 int main(void)
 {
-    int fd;
+    int semID, fd;
     pid_t child;
 
-    // Handle terminate signal
-    if(signal(SIGINT, cleanup) == SIG_ERR)
-    {
-        perror("signal");
-        return -1;
-    }
     // Create semaphore
     semID = OS_Sema_Create(SEM_KEY); 
     if(semID == -1)
@@ -43,19 +37,27 @@ int main(void)
             }
             printf("Child write to file\n");
             write(fd, "b ", 2);
+            sleep(2);
+            printf("Child signal sema\n");
             if(OS_Sema_Signal(SEM_KEY) < 0)
                 exit(1);
-            sleep(2);
         }
     }
     else {
+        // Handle terminate signal
+        if(signal(SIGINT, cleanup) == SIG_ERR)
+        {
+            perror("signal");
+            return -1;
+        }
         while(1){
             printf("Parent Run\n");
             OS_Sema_Wait(SEM_KEY);
             printf("Parent write to file\n");
             write(fd, "a ", 2);
-            OS_Sema_Signal(SEM_KEY);
             sleep(2);
+            printf("Parent signal sema\n");
+            OS_Sema_Signal(SEM_KEY);
         }
     }
 
@@ -65,7 +67,7 @@ int main(void)
 void cleanup(int signal)
 {
     // Delete sema
-    printf("App died: Delete Semaphore\n");
-    OS_Sema_Del(semID);
+    printf("App died: Delete Semaphore key num: %d\n", SEM_KEY);
+    OS_Sema_Del(SEM_KEY);
     exit(0);
 }
