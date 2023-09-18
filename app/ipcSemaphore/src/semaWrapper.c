@@ -18,7 +18,7 @@ _SEMA_ID OS_Sema_Create(key_t keyNum)
         perror("semctl - SETALL");
         return -1;
     }
-    
+
     return iSemaID;
 }
 
@@ -70,9 +70,17 @@ int OS_Sema_Signal(key_t keyNum)
     return iRet;
 }
 
-int OS_Sema_Del(_SEMA_ID id)
+int OS_Sema_Del(key_t keyNum)
 {
-    if(semctl(id, 1, IPC_RMID, 0) == -1){
+    int semID;
+    // Get semaphore
+    semID = semget(keyNum, 1, 0777);
+    if (semID == -1){
+        perror("semget");
+        return -1;
+    }
+    // Delete semaphore
+    if(semctl(semID, 1, IPC_RMID, 0) == -1){
         perror("semctl - IPC_RMID");
         return -1;
     }
