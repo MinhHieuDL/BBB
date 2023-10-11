@@ -35,11 +35,15 @@ int main(int argc, char const* argv[])
         printf("\nConnection Failed \n"); 
         return -1; 
     } 
-    send(client_fd, hello, strlen(hello), 0); 
-    printf("Hello message sent\n"); 
-    valread = read(client_fd, buffer, 1024); 
-    printf("valread: %d\n", valread);
-    printf("%s\n", buffer); 
+    int sendRet = send(client_fd, hello, strlen(hello), 0); 
+    printf("Hello message sent - sendRet: %d\n", sendRet);
+    if(sendRet < 0)
+        perror("send failed"); 
+    // valread = read(client_fd, buffer, 1024); 
+    // printf("valread: %d\n", valread);
+    // if(valread < 0)
+    //     perror("read failed");
+    // printf("%s\n", buffer); 
   
     // closing the connected socket 
     close(client_fd); 
