@@ -15,6 +15,7 @@ int main(void)
     int opt = 1;
     int addrlen = sizeof(address);
     char buffer[1024] = {0};
+    char* hello = "Hello from server"; 
 
     // Create socket file description 
     if((iServerDes = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -32,7 +33,7 @@ int main(void)
     address.sin_port = htons(PORT);
 
     // Forcefully attaching socket to the port 8080 
-    if(bind(iServerDes, (struct sockaddr*)&address, sizeof(address)) < 0){
+    if (bind(iServerDes, (struct sockaddr*)&address, sizeof(address)) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
@@ -40,13 +41,22 @@ int main(void)
         perror("listen");
         exit(EXIT_FAILURE);
     }
-    if(iNewChanDes = accept(iServerDes, (struct sockaddr*)&address, (socklen_t*)&addrlen) < 0){
+    
+    printf("Set up success\n");
+    printf("Wait for client connect ...\n");
+    
+    if ((iNewChanDes = accept(iServerDes, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
         perror("accept");
         exit(EXIT_FAILURE);
     }
-    read(iNewChanDes, buffer, 1024);
-    printf("Message from client: %s\n", buffer);
 
+    int valread = read(iNewChanDes, buffer, 1024);
+    printf("valread: %d\n", valread);
+    printf("Message from client: %s\n", buffer);
+    // int sendRet = send(iNewChanDes, hello, strlen(hello), 0); 
+    // printf("Hello message sent - sendRet: %d\n", sendRet); 
+    // if(sendRet < 0)
+    //     perror("send failed");
     // Clean up resource
     // Close new socket channel
     close(iNewChanDes);
