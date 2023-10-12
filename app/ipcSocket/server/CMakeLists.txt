@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
-project(ipcSocket)
+project(socketServer)
 
 # Set the cross-compiler and toolchain file
 set(CMAKE_SYSTEM_NAME Linux)
