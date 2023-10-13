@@ -50,13 +50,22 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-    int valread = read(iNewChanDes, buffer, 1024);
-    printf("valread: %d\n", valread);
-    printf("Message from client: %s\n", buffer);
-    // int sendRet = send(iNewChanDes, hello, strlen(hello), 0); 
-    // printf("Hello message sent - sendRet: %d\n", sendRet); 
-    // if(sendRet < 0)
-    //     perror("send failed");
+    // read message from client
+    if (read(iNewChanDes, buffer, 1024) < 0) {
+        perror("read failed");
+    }
+    else {
+        printf("Message from client: %s\n", buffer);
+    }
+
+    // send message to server
+    if(send(iNewChanDes, hello, strlen(hello), 0) < 0) {
+        perror("send failed");
+    }
+    else {
+        printf("Send message to client successed\n"); 
+    } 
+    
     // Clean up resource
     // Close new socket channel
     close(iNewChanDes);
