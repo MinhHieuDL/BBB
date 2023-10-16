@@ -31,7 +31,6 @@ void updateDB(const char* pcDBFile)
             {
                 char user[MAX_USER_SIZE];
                 char passwd[MAX_PASSWORD_SIZE];
-                char newLineDB[EVP_MAX_MD_SIZE + MAX_USER_SIZE];
                 printf("user: ");
                 scanf(" %s", user);
                 printf("password: ");
@@ -39,7 +38,13 @@ void updateDB(const char* pcDBFile)
                 unsigned char hash[EVP_MAX_MD_SIZE];
                 if(encodePasswod(passwd, hash))
                 {
-                    snprintf(newLineDB,sizeof(newLineDB), "%s,%s", user, hash);
+                    char newLineDB[MAX_USER_SIZE + EVP_MAX_MD_SIZE * 2 + 1];
+                    sprintf(newLineDB, "%s,", user);
+                    for (unsigned int i = 0; i < EVP_MD_size(EVP_sha256()); i++) 
+                    {
+                        sprintf(newLineDB + strlen(newLineDB), "%02x", hash[i]);
+                    }
+                    printf("Hashed Password: %s\n", newLineDB);
                     addNewLine(pcDBFile, newLineDB);
                 }
                 else 
