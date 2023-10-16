@@ -17,7 +17,7 @@ int main(void)
     while (1)
     {
         printf("\nEnter command: ");
-        scanf("%c", &userCMD);
+        scanf(" %c", &userCMD);
 
         if(userCMD == 'q')
             break;
@@ -28,7 +28,7 @@ int main(void)
             {
                 char fileName[100];
                 printf("Enter file name: ");
-                scanf("%s", fileName);
+                scanf(" %s", fileName);
                 addFile(fileName);
             }
             break;
@@ -40,7 +40,7 @@ int main(void)
                 if(fileName[0] == '\0')
                 {
                     printf("Not any cache file before, enter file name:");
-                    scanf("%s", fileName);
+                    scanf(" %s", fileName);
                     getchar();
                 }
                 updateDB(fileName);
@@ -54,7 +54,7 @@ int main(void)
                 if(fileName[0] == '\0')
                 {
                     printf("Not any cache file before, enter file name:");
-                    scanf("%s", fileName);
+                    scanf(" %s", fileName);
                     getchar();
                 }
                 printFile(fileName);
@@ -64,7 +64,7 @@ int main(void)
             case 'c':
             {
                 printf("Enter file name: ");
-                scanf("%s", cacheFile);
+                scanf(" %s", cacheFile);
                 printf("Cache file: %s for handling later\n", cacheFile);
             }
             break;
