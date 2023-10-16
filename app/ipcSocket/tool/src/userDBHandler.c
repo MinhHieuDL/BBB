@@ -1,4 +1,14 @@
 #include "userDBHandler.h"
+#include <openssl/evp.h>
+
+#define MAX_USER_SIZE   30
+#define MAX_PASSWORD_SIZE   30
+
+//************* internal api *********************
+bool encodePasswod(const char *password, unsigned char *hash);
+
+//************* define api *********************
+
 
 void updateDB(const char* pcDBFile)
 {
@@ -19,15 +29,21 @@ void updateDB(const char* pcDBFile)
         {
             case 'a':
             {
-                char user[30];
-                char passwd[30];
-                char newLineDB[60];
+                char user[MAX_USER_SIZE];
+                char passwd[MAX_PASSWORD_SIZE];
+                char newLineDB[EVP_MAX_MD_SIZE + MAX_USER_SIZE];
                 printf("user: ");
                 scanf(" %s", user);
                 printf("password: ");
                 scanf(" %s", passwd);
-                snprintf(newLineDB,sizeof(newLineDB), "%s,%s", user, passwd);
-                addNewLine(pcDBFile, newLineDB);
+                unsigned char hash[EVP_MAX_MD_SIZE];
+                if(encodePasswod(passwd, hash))
+                {
+                    snprintf(newLineDB,sizeof(newLineDB), "%s,%s", user, hash);
+                    addNewLine(pcDBFile, newLineDB);
+                }
+                else 
+                    printf("encode password failed, please check and update again\n");
             }    
             break;
 
@@ -39,4 +55,35 @@ void updateDB(const char* pcDBFile)
     }
     printf("Back to main mode\n");
     return;
+}
+
+bool encodePasswod(const char *password, unsigned char *hash)
+{
+    EVP_MD_CTX *mdctx;
+    const EVP_MD *md;
+    unsigned int md_len;
+
+    md = EVP_sha256(); // Use the SHA-256 algorithm
+
+    if (!(mdctx = EVP_MD_CTX_new())) {
+        return false;
+    }
+
+    if (1 != EVP_DigestInit_ex(mdctx, md, NULL)) {
+        EVP_MD_CTX_free(mdctx);
+        return false;
+    }
+
+    if (1 != EVP_DigestUpdate(mdctx, password, strlen(password))) {
+        EVP_MD_CTX_free(mdctx);
+        return false;
+    }
+
+    if (1 != EVP_DigestFinal_ex(mdctx, hash, &md_len)) {
+        EVP_MD_CTX_free(mdctx);
+        return false;
+    }
+
+    EVP_MD_CTX_free(mdctx);
+    return true;
 }

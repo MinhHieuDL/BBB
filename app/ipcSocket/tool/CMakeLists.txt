@@ -17,6 +17,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ../lib/include
 )
 
+# Link with OpenSSL
+find_package(OpenSSL REQUIRED)
+target_link_libraries(${PROJECT_NAME} OpenSSL::SSL OpenSSL::Crypto)
+
 # Specify any other compiler flags or options as needed
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
 
