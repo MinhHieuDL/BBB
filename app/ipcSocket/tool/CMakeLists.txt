@@ -4,6 +4,7 @@ project(DBTool)
 # Set source files
 set(SRC_FILES
     src/main.c
+    src/userDBHandler.c
     ../lib/src/fileHandler.c
 )
 

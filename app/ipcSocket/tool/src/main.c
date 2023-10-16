@@ -1,4 +1,4 @@
-#include "fileHandler.h"
+#include "userDBHandler.h"
 
 int main(void)
 {
@@ -43,8 +43,7 @@ int main(void)
                     scanf("%s", fileName);
                     getchar();
                 }
-
-                addNewLine(fileName, "hello world");
+                updateDB(fileName);
             }
             break;
 
