@@ -73,7 +73,11 @@ void printFile(const char* pFile) {
 
     while (readNextLine(pFp, &pLine)) {
         if(pLine)
+        {
             printf("%s", pLine);
+            free(pLine);
+            pLine = NULL;
+        }
     }
 
     free(pLine);
