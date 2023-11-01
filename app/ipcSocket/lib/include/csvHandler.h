@@ -1,5 +1,5 @@
-#ifndef CSV_HANDLING
-#define CSV_HANDLING
+#ifndef CSV_HANDLER
+#define CSV_HANDLER
 
 #include <stdio.h>
 #include <string.h>
