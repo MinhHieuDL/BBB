@@ -1,7 +1,7 @@
 #include "encodeHandler.h"
 #include <string.h>
 
-bool encodePasswod(const char *password, unsigned char *hash)
+bool encodePsw(const char *password, unsigned char *hash)
 {
     EVP_MD_CTX *mdctx;
     const EVP_MD *md;

@@ -33,7 +33,7 @@ void updateDB(const char* pcDBFile)
                 printf("password: ");
                 scanf(" %s", passwd);
                 unsigned char hash[EVP_MAX_MD_SIZE];
-                if(encodePasswod(passwd, hash))
+                if(encodePsw(passwd, hash))
                 {
                     char newLineDB[MAX_USER_SIZE + EVP_MAX_MD_SIZE * 2 + 1];
                     sprintf(newLineDB, "%s,", user);

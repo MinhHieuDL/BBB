@@ -4,6 +4,6 @@
 #include <openssl/evp.h>
 #include <stdbool.h>
 
-bool encodePasswod(const char *password, unsigned char *hash);
+bool encodePsw(const char *password, unsigned char *hash);
 
 #endif
