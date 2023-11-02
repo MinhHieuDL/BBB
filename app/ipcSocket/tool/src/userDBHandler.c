@@ -1,11 +1,8 @@
 #include "userDBHandler.h"
-#include <openssl/evp.h>
+#include "encodeHandler.h"
 
 #define MAX_USER_SIZE   30
 #define MAX_PASSWORD_SIZE   30
-
-//************* internal api *********************
-bool encodePasswod(const char *password, unsigned char *hash);
 
 //************* define api *********************
 
@@ -36,7 +33,7 @@ void updateDB(const char* pcDBFile)
                 printf("password: ");
                 scanf(" %s", passwd);
                 unsigned char hash[EVP_MAX_MD_SIZE];
-                if(encodePasswod(passwd, hash))
+                if(encodePsw(passwd, hash))
                 {
                     char newLineDB[MAX_USER_SIZE + EVP_MAX_MD_SIZE * 2 + 1];
                     sprintf(newLineDB, "%s,", user);
@@ -60,35 +57,4 @@ void updateDB(const char* pcDBFile)
     }
     printf("Back to main mode\n");
     return;
-}
-
-bool encodePasswod(const char *password, unsigned char *hash)
-{
-    EVP_MD_CTX *mdctx;
-    const EVP_MD *md;
-    unsigned int md_len;
-
-    md = EVP_sha256(); // Use the SHA-256 algorithm
-
-    if (!(mdctx = EVP_MD_CTX_new())) {
-        return false;
-    }
-
-    if (1 != EVP_DigestInit_ex(mdctx, md, NULL)) {
-        EVP_MD_CTX_free(mdctx);
-        return false;
-    }
-
-    if (1 != EVP_DigestUpdate(mdctx, password, strlen(password))) {
-        EVP_MD_CTX_free(mdctx);
-        return false;
-    }
-
-    if (1 != EVP_DigestFinal_ex(mdctx, hash, &md_len)) {
-        EVP_MD_CTX_free(mdctx);
-        return false;
-    }
-
-    EVP_MD_CTX_free(mdctx);
-    return true;
 }

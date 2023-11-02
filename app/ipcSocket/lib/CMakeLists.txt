@@ -1,25 +1,20 @@
 cmake_minimum_required(VERSION 3.0)
-project(MyLibraries)
+project(User_Lib)
 
-# Set source files for fileHandler library
-set(FILE_HANDLER_SRC
-    fileHandler/src/fileHandler.c
+# Define the list of libraries
+set(LIBRARIES
+    fileHandler
+    encodeHandler
+    csvHandler
 )
 
-# Set source files for csvHandler library
-# set(CSV_HANDLER_SRC
-#     lib/csvhandler/src/csvhandler.c
-# )
+# Iterate over the libraries and create them
+foreach(LIBRARY ${LIBRARIES})
+    # Set source files for the current library
+    set(SRC_FILES "src/${LIBRARY}.c")
 
-# Create libraries
-add_library(fileHandlerLib SHARED ${FILE_HANDLER_SRC})
-# add_library(CsvHandlerLib SHARED ${CSV_HANDLER_SRC})
-
-# Set include directories for libraries
-target_include_directories(fileHandlerLib PUBLIC fileHandler/include)
-# target_include_directories(CsvHandlerLib PUBLIC lib/csvhandler/include)
-
-# Set the common output directory for libraries
-set(LIBRARY_OUTPUT_DIR "${CMAKE_BINARY_DIR}/libBuild")
-set_target_properties(fileHandlerLib PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR})
-# set_target_properties(CsvHandlerLib PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${LIBRARY_OUTPUT_DIR})
+    # Add the library and set its properties
+    add_library(${LIBRARY} SHARED ${SRC_FILES})
+    target_include_directories(${LIBRARY} PUBLIC "include")
+    set_target_properties(${LIBRARY} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libBuild")
+endforeach()

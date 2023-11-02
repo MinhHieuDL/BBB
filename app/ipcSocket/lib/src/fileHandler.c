@@ -43,8 +43,6 @@ bool delLine(const char* pFile, short iLineNum) {
 }
 
 bool addFile(const char* pFile) {
-    bool bRet = true; 
-
     FILE* file = fopen(pFile, "r");
 
     if (file == NULL) {
@@ -53,12 +51,12 @@ bool addFile(const char* pFile) {
 
         if (file == NULL) {
             perror("Create file failed");
-            bRet = false;
+            return false;
         }
     }
 
-    fclose(file); // Close the file if it exists
-    return false;
+    fclose(file); 
+    return true;
 }
 
 void printFile(const char* pFile) {
