@@ -7,6 +7,9 @@ set(SRC_FILES
     src/userDBHandler.c
 )
 
+# Build user libraries
+add_subdirectory(../lib ${CMAKE_BINARY_DIR}/libBuild)
+
 # Add executable
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
@@ -20,10 +23,11 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 find_package(OpenSSL REQUIRED)
 target_link_libraries(${PROJECT_NAME} OpenSSL::SSL OpenSSL::Crypto)
 
-# Link with fileHandlerLib
+# Link with user libraries
 target_link_libraries(${PROJECT_NAME} 
-    "${CMAKE_SOURCE_DIR}/../lib/build/libBuild/libencodeHandler.so"
-    "${CMAKE_SOURCE_DIR}/../lib/build/libBuild/libfileHandler.so")
+    encodeHandler
+    fileHandler
+)
 
 # Specify any other compiler flags or options as needed
 # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
