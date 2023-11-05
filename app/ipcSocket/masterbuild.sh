@@ -68,6 +68,14 @@ cleanHandler(){
 # build action define
 build(){
     log "start building target: ${1}"
+    
+    # Check and do clean if required
+    if [[ "${CLEAN_BUILD}" = 'true' ]]
+    then 
+        clean "${1}"
+    fi
+    
+    # Set app directory
     local APP_DIR="${PR_ROOT_DIR}/${1}"
 
     # Create a build directory if it doesn't exist
@@ -139,11 +147,6 @@ fi
 
 # Check if Target build valid or not - If yes perform build
 if valid_target "${TARGET_BUILD}"; then
-    # Do clean before building target if required
-    if [[ "${CLEAN_BUILD}" = 'true' ]]
-    then 
-        cleanHandler "${TARGET_BUILD}"
-    fi
     # Perform build 
     buildHandler "${TARGET_BUILD}"
 else
