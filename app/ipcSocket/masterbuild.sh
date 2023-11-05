@@ -87,10 +87,71 @@ buildHandler(){
 
     if [[ "$target" == "all" ]]; then
         log 'build all sub-applications'
-        for APP in "{TARGETS[@]}"; do 
-            build "$APP_DIR"
+        for APP in "${TARGETS[@]}"; do 
+            build "${APP}"
         done
     else
-        build "$target"
+        build "${target}"
     fi
 }
+
+# ----------------------------------------------------------- #
+# main script operation
+
+# parsing option argument
+ARG_LIST=$(getopt -o hvcb: --long help,verbose,clean,build: -- "$@")
+if [[ $? -ne 0 ]]; then
+    exit 1
+fi
+
+eval set -- "$ARG_LIST"
+while [ : ]; do
+    case "${1}" in
+    -h | --help)
+        usage
+        exit 1
+        ;;
+    -v | --verbose)
+        VERBOSE='true'
+        shift
+        ;;
+    -c | --clean)
+        CLEAN_BUILD='true'
+        shift
+        ;;
+    -b | --build)
+        TARGET_BUILD="${2}"
+        shift 2
+        ;;
+    --)
+        shift
+        break
+        ;;
+    esac
+done
+
+# Check if -b argument was provided or not
+if [ -z "${TARGET_BUILD}"]; then
+    echo "please provide [-b|--build TARGET] argument."
+    usage
+    exit 1
+fi
+
+# Check if Target build valid or not - If yes perform build
+if valid_target "${TARGET_BUILD}"; then
+    # Do clean before building target if required
+    if [[ "${CLEAN_BUILD}" = 'true' ]]
+    then 
+        cleanHandler "${TARGET_BUILD}"
+    fi
+    # Perform build 
+    buildHandler "${TARGET_BUILD}"
+else
+    echo "Please provide valid target for build"
+    usage
+    exit 1
+fi
+
+# Done
+echo "Build done!"
+exit 0
