@@ -4,7 +4,7 @@
 #include "encodeHandler.h"
 
 #define DBFileName "userDB.csv"
-#define DBDelim ','
+#define DBDelim ","
 #define USER_POS 1
 #define PSW_POS 2
 
@@ -39,10 +39,11 @@ char* findPswOnUser(char* pcUsername)
 
     if (!pFp) {
         perror("Open failed!");
-        return;
+        return NULL;
     }
 
-    char *pLine = NULL, *pUser = NULL, *pPsw = NULL;
+    char *pLine = NULL;
+    const char *pUser = NULL, *pPsw = NULL;
 
     while (readNextLine(pFp, &pLine)) {
         if(pLine)
@@ -54,10 +55,10 @@ char* findPswOnUser(char* pcUsername)
                 if(strcmp(pUser, pcUsername) == 0)
                 {
                     pPsw = parseCSVToken(pLine, DBDelim, PSW_POS);
-                    free(pUser);
+                    free((void*)pUser); // Cast to void* before freeing
                     break;
                 }
-                free(pUser);
+                free((void*)pUser); // Cast to void* before freeing
             }
             free(pLine);
             pLine = NULL;
@@ -67,5 +68,5 @@ char* findPswOnUser(char* pcUsername)
     free(pLine);
     fclose(pFp);
 
-    return pPsw;
+    return (char*)pPsw; // Cast to char* to match the return type
 }
