@@ -1,12 +1,15 @@
 #!/bin/bash
 
-usage(){
-    echo "Usage: ${0} [-c TARGET] [-b TARGET]"
-    echo "Build full remote login app"
-    echo ' -c TARGET Clean previous build of target' 
-    echo ' -b TARGET Generate build file and perform build target' 
-    echo " Available target: all, client, tool, server"
-    exit 1 
+usage() {
+    echo "Usage: ${0} [-h|--help] [-v|--verbose] [-c|--clean] [-b|--build TARGET]"
+    echo "Build and manage the full remote login app"
+    echo "Options:"
+    echo " -h | --help          Print script's reference manual"
+    echo " -v | --verbose       Enable Verbose mode"
+    echo " -c | --clean         Clean target before building"
+    echo " -b | --build TARGET  Generate build files and perform the build for the specified target or 'all' to build all"
+    echo " Valid targets: all, client, tool, server"
+    exit 1
 }
 
 log(){
@@ -23,6 +26,22 @@ TARGETS=("client" "tool" "server")
 # Project root directories
 PR_ROOT_DIR="$(pwd)"
 
+# Check valid target
+valid_target() {
+    local target="${1}"
+    if [ "${target}" == "all" ]; then
+        return 0
+    fi
+
+    for validTar in "${TARGETS[@]}"; do
+        if [ "${target}" == "${validTar}" ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 # Clean action define
 clean(){
     local CLEAN_DIR="${PR_ROOT_DIR}/${1}/build"
@@ -38,11 +57,11 @@ cleanHandler(){
 
     if [[ "$target" == "all" ]]; then
         log 'cleaning all sub-applications'
-        for APP_DIR in "{TARGETS[@]}"; do 
-            clean "$APP_DIR"
+        for APP in "${TARGETS[@]}"; do 
+            clean "${APP}"
         done
     else
-        clean "$APP_DIR"
+        clean "${target}"
     fi
 }
 
