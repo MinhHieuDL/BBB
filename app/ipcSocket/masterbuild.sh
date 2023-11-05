@@ -67,6 +67,7 @@ cleanHandler(){
 
 # build action define
 build(){
+    log "----------------------------------------------------------------------------------------------"
     log "start building target: ${1}"
     
     # Check and do clean if required
