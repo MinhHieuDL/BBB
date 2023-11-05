@@ -131,7 +131,7 @@ while [ : ]; do
 done
 
 # Check if -b argument was provided or not
-if [ -z "${TARGET_BUILD}"]; then
+if [ -z "${TARGET_BUILD}" ]; then
     echo "please provide [-b|--build TARGET] argument."
     usage
     exit 1
