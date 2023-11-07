@@ -1,7 +1,8 @@
 #ifndef REMOTE_HANDSHAKE_HANDLER
 #define REMOTE_HANDSHAKE_HANDLER
 
-#include "stdbool.h"
+#include <stdbool.h>
+#include <netinet/in.h>
 
 typedef struct loginMsg
 {
@@ -9,8 +10,14 @@ typedef struct loginMsg
     char* pcUserPsw;
 }loginMsg;
 
-bool ServerInit(int* iServerFD);
+// server API
+bool ServerInit(int* iServerFD, int iPort, struct sockaddr_in st_address);
+bool WaitForClientConnect(int iServerFD, struct sockaddr st_address, int* p_iNewChan);
+
+// Client API
 bool ClientInit(int* iClientFD);
+
+
 bool SendLoginMsg(int iClientFD, loginMsg loginInfo);
 bool ReadLoginMSG(int iChanFD, loginMsg* pLoginInfo);
 
