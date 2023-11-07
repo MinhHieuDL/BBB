@@ -45,9 +45,9 @@ valid_target() {
 # Clean action define
 clean(){
     local CLEAN_DIR="${PR_ROOT_DIR}/${1}/build"
-    log "cleaning target: ${1}"
+    log "cleaning target: ${1} ..."
     if [[ -d "$CLEAN_DIR" ]]; then 
-        rm -rvf "$CLEAN_DIR"
+        yes | rm -r "$CLEAN_DIR"
     fi
     log "clean done"
 }
