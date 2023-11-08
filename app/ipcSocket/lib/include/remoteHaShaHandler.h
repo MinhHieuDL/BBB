@@ -16,6 +16,7 @@ bool WaitForClientConnect(int iServerFD, struct sockaddr st_address, int* p_iNew
 
 // Client API
 bool ClientInit(int* iClientFD);
+bool ServerConnect(int iServerFD, const char* sServerAdd, int iPort);
 
 
 bool SendLoginMsg(int iClientFD, loginMsg loginInfo);
