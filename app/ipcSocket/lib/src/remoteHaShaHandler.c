@@ -74,9 +74,48 @@ bool ServerConnect(int iClientFD, const char* sServerAdd, int iPort) {
 }
 
 bool SendLoginMsg(int iClientFD, loginMsg loginInfo) {
-    return false;
+    // Packaging loginInfo for sending 
+    struct iovec iov[2];
+    iov[0].iov_base = loginInfo.pcUserLogin;
+    iov[0].iov_len = strlen(loginInfo.pcUserLogin);
+    iov[1].iov_base = loginInfo.pcUserPsw;
+    iov[1].iov_len = strlen(loginInfo.pcUserPsw);
+
+    struct msghdr msg;
+    msg.msg_iov = iov;
+    msg.msg_iovlen = sizeof(iov)/sizeof(struct iovec);
+
+    // Send msg
+    if(sendmsg(iClientFD, &msg, 0) == -1)
+    {
+        perror("sendmsg failed");
+        return false;
+    }
+
+    return true;
 }
 
 bool ReadLoginMSG(int iChanFD, loginMsg* pLoginInfo) {
-    return false;
+    // Unpackaging loginInfo received from client 
+    struct iovec iov[2];
+    struct msghdr msg;
+    char user[30];
+    char psswd[30];
+
+    iov[0].iov_base = user;
+    iov[0].iov_len = sizeof(user);
+    iov[1].iov_base = psswd;
+    iov[1].iov_len = sizeof(psswd);
+    
+    // read msg from client
+    if(recvmsg(iChanFD, &msg, 0) == -1)
+    {
+        perror("recvmsg failed");
+        return false;
+    }
+
+    pLoginInfo->pcUserLogin = user;
+    pLoginInfo->pcUserPsw = psswd;
+    
+    return true;
 }
