@@ -6,7 +6,7 @@
 #include <unistd.h> 
 #include "remoteHaShaHandler.h"
 
-bool ServerInit(int* piServerFD, int iPort, struct sockaddr_in st_address) {
+bool ServerInit(int* piServerFD, struct sockaddr_in st_address) {
     int iServerDes;
     int opt = 1;
 
@@ -38,10 +38,16 @@ bool ServerInit(int* piServerFD, int iPort, struct sockaddr_in st_address) {
 }
 
 
-bool WaitForClientConnect(int iServerFD, struct sockaddr st_address, int* p_iNewChan)
+bool WaitForClientConnect(int iServerFD, struct sockaddr_in st_address, int* p_iNewChan)
 {
-    *p_iNewChan = accept(iServerFD, &st_address, (socklen_t*)sizeof(st_address));
-    return ( (*p_iNewChan) != -1 );
+    *p_iNewChan = accept(iServerFD, (struct sockaddr*)&st_address, (socklen_t*)sizeof(st_address));
+    
+    if(*p_iNewChan == -1) {
+        perror("accept failed");
+        return false;        
+    }
+    
+    return true;
 }
 
 

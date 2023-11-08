@@ -12,8 +12,8 @@ typedef struct loginMsg
 }loginMsg;
 
 // server API
-bool ServerInit(int* iServerFD, int iPort, struct sockaddr_in st_address);
-bool WaitForClientConnect(int iServerFD, struct sockaddr st_address, int* p_iNewChan);
+bool ServerInit(int* iServerFD, struct sockaddr_in st_address);
+bool WaitForClientConnect(int iServerFD, struct sockaddr_in st_address, int* p_iNewChan);
 
 // Client API
 bool ClientInit(int* iClientFD);
