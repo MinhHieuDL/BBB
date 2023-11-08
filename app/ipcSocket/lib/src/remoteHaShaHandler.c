@@ -1,5 +1,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <string.h>
 #include <unistd.h>
 #include "remoteHaShaHandler.h"
 
@@ -43,7 +44,33 @@ bool WaitForClientConnect(int iServerFD, struct sockaddr st_address, int* p_iNew
 
 
 bool ClientInit(int* iClientFD) {
-    return false;
+    int iCliDF;
+    iCliDF = socket(AF_INET, SOCK_STREAM, 0);
+    
+    if(iCliDF < 0)
+        return false;
+    
+    *iClientFD = iCliDF;
+    return true;
+}
+
+bool ServerConnect(int iClientFD, const char* sServerAdd, int iPort) {
+    struct  sockaddr_in serv_addr;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(iPort);
+    
+    // Convert IPv4 and IPv6 addresses from text to binary form 
+    if (inet_pton(AF_INET, sServerAdd, &serv_addr.sin_addr) <= 0) { 
+        printf("Invalid address -- Address not supported \n"); 
+        return false; 
+    } 
+  
+    if (connect(iClientFD, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) { 
+        perror("connect Failed"); 
+        return false; 
+    }
+    
+    return true;
 }
 
 bool SendLoginMsg(int iClientFD, loginMsg loginInfo) {
