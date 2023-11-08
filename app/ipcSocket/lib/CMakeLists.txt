@@ -6,6 +6,7 @@ set(LIBRARIES
     fileHandler
     encodeHandler
     csvHandler
+    remoteHaShaHandler
 )
 
 # Iterate over the libraries and create them

@@ -2,6 +2,8 @@
 #include <sys/socket.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdio.h>
+#include <unistd.h> 
 #include "remoteHaShaHandler.h"
 
 bool ServerInit(int* piServerFD, int iPort, struct sockaddr_in st_address) {
@@ -38,7 +40,7 @@ bool ServerInit(int* piServerFD, int iPort, struct sockaddr_in st_address) {
 
 bool WaitForClientConnect(int iServerFD, struct sockaddr st_address, int* p_iNewChan)
 {
-    *p_iNewChan = accept(iServerFD, &st_address, sizeof(st_address));
+    *p_iNewChan = accept(iServerFD, &st_address, (socklen_t*)sizeof(st_address));
     return ( (*p_iNewChan) != -1 );
 }
 

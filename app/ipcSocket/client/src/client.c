@@ -1,9 +1,8 @@
-#include <arpa/inet.h> 
-#include <stdio.h>
 #include <stdlib.h> 
-#include <string.h> 
-#include <sys/socket.h> 
-#include <unistd.h> 
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include "remoteHaShaHandler.h" 
 #define PORT 8080 
   
 int main(int argc, char const* argv[]) 
