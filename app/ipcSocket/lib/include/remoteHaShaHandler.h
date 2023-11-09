@@ -7,8 +7,8 @@
 
 typedef struct loginMsg
 {
-    char* pcUserLogin;
-    char* pcUserPsw;
+    char pcUserLogin[30];
+    char pcUserPsw[30];
 }loginMsg;
 
 // server API

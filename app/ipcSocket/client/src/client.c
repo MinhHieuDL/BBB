@@ -28,18 +28,14 @@ int main(int argc, char const* argv[])
     printf("Finded the server - enter login authentication \n");
 
     // Send login authentication
-    char user[30];
-    char psswd[30];
+    loginMsg sendMsg;
     printf("user: ");
-    fgets(user, sizeof(user), stdin);
+    fgets(sendMsg.pcUserLogin, sizeof(sendMsg.pcUserLogin), stdin);
     printf("psswd: ");
-    fgets(psswd, sizeof(psswd), stdin);
+    fgets(sendMsg.pcUserPsw, sizeof(sendMsg.pcUserPsw), stdin);
 
     // send data to server
-    loginMsg sendMsg = {
-        .pcUserLogin = user,
-        .pcUserPsw = psswd
-    };
+
 
     if( !SendLoginMsg(client_fd, sendMsg) ) {
         close(client_fd);
