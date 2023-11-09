@@ -19,8 +19,8 @@ bool WaitForClientConnect(int iServerFD, struct sockaddr_in st_address, int* p_i
 bool ClientInit(int* iClientFD);
 bool ServerConnect(int iServerFD, const char* sServerAdd, int iPort);
 
-
-bool SendLoginMsg(int iClientFD, loginMsg loginInfo);
+// MSG handling
+bool SendLoginMsg(int iClientFD, char* sUser, char* sPwd);
 bool ReadLoginMSG(int iChanFD, loginMsg* pLoginInfo);
 
 #endif

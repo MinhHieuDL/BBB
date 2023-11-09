@@ -6,6 +6,11 @@
 #include <unistd.h> 
 #include "remoteHaShaHandler.h"
 
+//*******************Internal API**********************//
+loginMsg FormatMsgForSending(char* pcUser, char* pcPwd);
+loginMsg ParsingMsgReceived(char* pcRevMSG);
+
+//*******************Define API**********************//
 bool ServerInit(int* piServerFD, struct sockaddr_in st_address) {
     int iServerDes;
     int opt = 1;
@@ -81,7 +86,10 @@ bool ServerConnect(int iClientFD, const char* sServerAdd, int iPort) {
     return true;
 }
 
-bool SendLoginMsg(int iClientFD, loginMsg loginInfo) {
+bool SendLoginMsg(int iClientFD, char* sUser, char* sPwd) {
+    // Format msg before sending
+    loginMsg loginInfo = FormatMsgForSending(sUser, sPwd);
+
     // Packaging loginInfo for sending 
     struct iovec iov[2];
     iov[0].iov_base = loginInfo.pcUserLogin;
@@ -104,24 +112,46 @@ bool SendLoginMsg(int iClientFD, loginMsg loginInfo) {
 }
 
 bool ReadLoginMSG(int iChanFD, loginMsg* pLoginInfo) {
-    // Unpackaging loginInfo received from client 
-    struct iovec iov[2];
-    struct msghdr msg = {};
-
-    iov[0].iov_base = pLoginInfo->pcUserLogin;
-    iov[0].iov_len = sizeof(pLoginInfo->pcUserLogin);
-    iov[1].iov_base = pLoginInfo->pcUserPsw;
-    iov[1].iov_len = sizeof(pLoginInfo->pcUserPsw);
-
-    msg.msg_iov = iov;
-    msg.msg_iovlen = sizeof(iov)/sizeof(struct iovec);
-    
+    char buff[100] = {};
     // read msg from client
-    if(recvmsg(iChanFD, &msg, 0) == -1)
+    if(recv(iChanFD, buff, sizeof(buff), 0) == -1)
     {
         perror("recvmsg failed");
         return false;
     }
-    
+
+    // Parsing login info from buffer
+    *pLoginInfo = ParsingMsgReceived(buff);
+
     return true;
+}
+
+loginMsg FormatMsgForSending(char* pcUser, char* pcPwd) {
+    loginMsg retMSG = {};
+    strcpy(retMSG.pcUserLogin, pcUser);  
+    strcat(retMSG.pcUserLogin, "-");     
+    strcpy(retMSG.pcUserPsw, pcPwd);
+    return retMSG;
+}
+
+loginMsg ParsingMsgReceived(char* pcRevMSG) {
+    loginMsg parsedMsg = {};
+
+    // Find the position of the dash '-'
+    const char* dashPosition = strchr(pcRevMSG, '-');
+
+    if (dashPosition != NULL) {
+        size_t userLength = dashPosition - pcRevMSG;
+        
+        strncpy(parsedMsg.pcUserLogin, pcRevMSG, userLength);
+        parsedMsg.pcUserLogin[userLength] = '\0';
+
+        strcpy(parsedMsg.pcUserPsw, dashPosition + 1);
+    } else {
+        // If no dash found, consider the whole string as the user part
+        strcpy(parsedMsg.pcUserLogin, pcRevMSG);
+        parsedMsg.pcUserPsw[0] = '\0'; 
+    }
+
+    return parsedMsg;
 }

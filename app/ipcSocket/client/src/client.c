@@ -27,14 +27,15 @@ int main(int argc, char const* argv[])
     printf("Finded the server - enter login authentication \n");
 
     // Send login authentication
-    loginMsg sendMsg = {};
+    char user[30];
+    char pswd[30];
     printf("user: ");
-    scanf("%29s", sendMsg.pcUserLogin);
+    scanf("%29s", user);
     printf("psswd: ");
-    scanf("%29s", sendMsg.pcUserPsw);
+    scanf("%29s", pswd);
 
     // send data to server
-    if( !SendLoginMsg(client_fd, sendMsg) ) {
+    if( !SendLoginMsg(client_fd, user, pswd) ) {
         close(client_fd);
         exit(EXIT_FAILURE);
     }
