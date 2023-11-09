@@ -1,10 +1,10 @@
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include "remoteHaShaHandler.h"
+#include "verifyLoginHandler.h"
 
 #define PORT 8080
 
@@ -12,59 +12,42 @@ int main(void)
 {
     int iServerDes, iNewChanDes;
     struct sockaddr_in address;
-    int opt = 1;
-    int addrlen = sizeof(address);
-    char buffer[1024] = {0};
-    char* hello = "Hello from server"; 
 
-    // Create socket file description 
-    if((iServerDes = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-        perror("socket failed");
-        exit(EXIT_FAILURE);
-    }
-
-    // Set option for able to reuse the address
-    if (setsockopt(iServerDes, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
-        perror("setsockopt");
-        exit(EXIT_FAILURE);
-    }
+    // init server socket 
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 
-    // Forcefully attaching socket to the port 8080 
-    if (bind(iServerDes, (struct sockaddr*)&address, sizeof(address)) < 0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
-    }
-    if(listen(iServerDes, 3) < 0){
-        perror("listen");
+    if( !ServerInit(&iServerDes, address) ) {
         exit(EXIT_FAILURE);
     }
     
     printf("Set up success\n");
     printf("Wait for client connect ...\n");
+
+    // wait for client connect
+    if( !WaitForClientConnect(iServerDes, address, &iNewChanDes) ) {
+        exit(EXIT_FAILURE);
+    }
     
-    if ((iNewChanDes = accept(iServerDes, (struct sockaddr*)&address, (socklen_t*)&addrlen)) < 0) {
-        perror("accept");
+    // read message from client
+    printf("Client connected! Wait for login authentication ...\n");
+    loginMsg recMsg = {};
+    if( !ReadLoginMSG(iNewChanDes, &recMsg) ) {
         exit(EXIT_FAILURE);
     }
 
-    // read message from client
-    if (read(iNewChanDes, buffer, 1024) < 0) {
-        perror("read failed");
-    }
-    else {
-        printf("Message from client: %s\n", buffer);
-    }
+    // read login authentication done - verify it
+    char* pcResMsg;
+    if( verifyPassword(recMsg.pcUserLogin, recMsg.pcUserPsw) )
+        pcResMsg = "Login succeed!";
+    else
+        pcResMsg = "Login failed";
 
     // send message to server
-    if(send(iNewChanDes, hello, strlen(hello), 0) < 0) {
-        perror("send failed");
-    }
-    else {
-        printf("Send message to client successed\n"); 
-    } 
+    if(send(iNewChanDes, pcResMsg, strlen(pcResMsg), 0) < 0) {
+        perror("send response msg failed");
+    }   
     
     // Clean up resource
     // Close new socket channel

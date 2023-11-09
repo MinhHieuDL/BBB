@@ -12,6 +12,15 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 # Set include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
     include
+    ../lib/include
+)
+
+# Build user libraries
+add_subdirectory(../lib ${CMAKE_BINARY_DIR}/libBuild)
+
+# Link with user libraries
+target_link_libraries(${PROJECT_NAME} 
+    remoteHaShaHandler
 )
 
 # Specify any other compiler flags or options as needed

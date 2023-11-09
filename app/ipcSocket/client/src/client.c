@@ -1,48 +1,52 @@
-#include <arpa/inet.h> 
-#include <stdio.h>
 #include <stdlib.h> 
-#include <string.h> 
-#include <sys/socket.h> 
-#include <unistd.h> 
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include "remoteHaShaHandler.h" 
 #define PORT 8080 
   
 int main(int argc, char const* argv[]) 
 { 
     int client_fd; 
-    struct sockaddr_in serv_addr; 
-    char* hello = "Hello from client"; 
-    char buffer[1024] = { 0 }; 
-    if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) { 
-        perror("Socket creation error \n"); 
-        exit(EXIT_FAILURE); 
-    } 
-  
-    serv_addr.sin_family = AF_INET; 
-    serv_addr.sin_port = htons(PORT); 
-  
-    // Convert IPv4 and IPv6 addresses from text to binary form 
-    if (inet_pton(AF_INET, "192.168.1.29", &serv_addr.sin_addr) <= 0) { 
-        printf("Invalid address -- Address not supported \n"); 
-        exit(EXIT_FAILURE); 
-    } 
-  
-    if (connect(client_fd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) { 
-        perror("connect Failed"); 
-        exit(EXIT_FAILURE); 
+    
+    // init client socket
+    if( !ClientInit(&client_fd) ) {
+        exit(EXIT_FAILURE);
     }
+    
+    // Connect to server
+    char stAdd[20];
+    printf("enter server address to connect: ");
+    scanf("%19s", stAdd);
+    printf("wait for connecting ....\n");
+    if ( !ServerConnect(client_fd, stAdd, PORT) )
+    {
+        close(client_fd);
+        exit(EXIT_FAILURE);
+    }
+    printf("Finded the server - enter login authentication \n");
 
-    // send data to server 
-    if(send(client_fd, hello, strlen(hello), 0) < 0) {
-        perror("send failed");
+    // Send login authentication
+    char user[30];
+    char pswd[30];
+    printf("user: ");
+    scanf("%29s", user);
+    printf("psswd: ");
+    scanf("%29s", pswd);
+
+    // send data to server
+    if( !SendLoginMsg(client_fd, user, pswd) ) {
+        close(client_fd);
+        exit(EXIT_FAILURE);
     }
-    printf("Send message to server successed \n");
     
     // read message from server
-    if(read(client_fd, buffer, 1024) < 0) {
+    char readBuff[1024];
+    if(read(client_fd, readBuff, 1024) < 0) {
         perror("read failed");
     } 
     else {
-        printf("Message from server received: %s \n", buffer);
+        printf("login status: %s \n", readBuff);
     }
   
     // closing the connected socket 
