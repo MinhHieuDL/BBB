@@ -17,8 +17,7 @@ int main(int argc, char const* argv[])
     // Connect to server
     char stAdd[20];
     printf("enter server address to connect: ");
-    fgets(stAdd, sizeof(stAdd), stdin);
-    
+    scanf("%19s", stAdd);
     printf("wait for connecting ....\n");
     if ( !ServerConnect(client_fd, stAdd, PORT) )
     {
@@ -30,13 +29,11 @@ int main(int argc, char const* argv[])
     // Send login authentication
     loginMsg sendMsg;
     printf("user: ");
-    fgets(sendMsg.pcUserLogin, sizeof(sendMsg.pcUserLogin), stdin);
+    scanf("%29s", sendMsg.pcUserLogin);
     printf("psswd: ");
-    fgets(sendMsg.pcUserPsw, sizeof(sendMsg.pcUserPsw), stdin);
+    scanf("%29s", sendMsg.pcUserPsw);
 
     // send data to server
-
-
     if( !SendLoginMsg(client_fd, sendMsg) ) {
         close(client_fd);
         exit(EXIT_FAILURE);
