@@ -40,9 +40,9 @@ bool ServerInit(int* piServerFD, struct sockaddr_in st_address) {
 
 bool WaitForClientConnect(int iServerFD, struct sockaddr_in st_address, int* p_iNewChan)
 {
-    *p_iNewChan = accept(iServerFD, (struct sockaddr*)&st_address, (socklen_t*)sizeof(st_address));
-    
-    if(*p_iNewChan == -1) {
+    socklen_t addrlen = sizeof(st_address);
+    *p_iNewChan = accept(iServerFD, (struct sockaddr*)&st_address, &addrlen);
+    if(*p_iNewChan < 0) {
         perror("accept failed");
         return false;        
     }
