@@ -30,10 +30,6 @@ int main(void)
         exit(EXIT_FAILURE);
     }
     
-    if ((iNewChanDes = accept(iServerDes, (struct sockaddr*)&address, (socklen_t*)sizeof(address))) < 0) {
-        exit(EXIT_FAILURE);
-    }
-
     // read message from client
     printf("Client connected! Wait for login authentication ...\n");
     loginMsg recMsg;
