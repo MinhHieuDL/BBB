@@ -89,7 +89,7 @@ bool SendLoginMsg(int iClientFD, loginMsg loginInfo) {
     iov[1].iov_base = loginInfo.pcUserPsw;
     iov[1].iov_len = strlen(loginInfo.pcUserPsw);
 
-    struct msghdr msg;
+    struct msghdr msg = {};
     msg.msg_iov = iov;
     msg.msg_iovlen = sizeof(iov)/sizeof(struct iovec);
 
