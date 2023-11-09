@@ -106,12 +106,15 @@ bool SendLoginMsg(int iClientFD, loginMsg loginInfo) {
 bool ReadLoginMSG(int iChanFD, loginMsg* pLoginInfo) {
     // Unpackaging loginInfo received from client 
     struct iovec iov[2];
-    struct msghdr msg;
+    struct msghdr msg = {};
 
     iov[0].iov_base = pLoginInfo->pcUserLogin;
     iov[0].iov_len = sizeof(pLoginInfo->pcUserLogin);
     iov[1].iov_base = pLoginInfo->pcUserPsw;
     iov[1].iov_len = sizeof(pLoginInfo->pcUserPsw);
+
+    msg.msg_iov = iov;
+    msg.msg_iovlen = sizeof(iov)/sizeof(struct iovec);
     
     // read msg from client
     if(recvmsg(iChanFD, &msg, 0) == -1)

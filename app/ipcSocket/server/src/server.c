@@ -32,7 +32,7 @@ int main(void)
     
     // read message from client
     printf("Client connected! Wait for login authentication ...\n");
-    loginMsg recMsg;
+    loginMsg recMsg = {};
     if( !ReadLoginMSG(iNewChanDes, &recMsg) ) {
         exit(EXIT_FAILURE);
     }

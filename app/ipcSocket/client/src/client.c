@@ -27,7 +27,7 @@ int main(int argc, char const* argv[])
     printf("Finded the server - enter login authentication \n");
 
     // Send login authentication
-    loginMsg sendMsg;
+    loginMsg sendMsg = {};
     printf("user: ");
     scanf("%29s", sendMsg.pcUserLogin);
     printf("psswd: ");
