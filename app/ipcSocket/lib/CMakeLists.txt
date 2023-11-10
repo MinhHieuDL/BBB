@@ -18,9 +18,19 @@ foreach(LIBRARY ${LIBRARIES})
     add_library(${LIBRARY} SHARED ${SRC_FILES})
     target_include_directories(${LIBRARY} PUBLIC "include")
 
-    # If the library is encodeHandler, add the OpenSSL include directory
     if(${LIBRARY} STREQUAL "encodeHandler")
-        target_include_directories(${LIBRARY} PUBLIC ${OPENSSL_INCLUDE_PATH})
+        if(OPENSSL_CROSS_COMPILE)
+            # Set the path to the cross-compiled OpenSSL libraries and headers
+            set(OPENSSL_ROOT_DIR ${CMAKE_SOURCE_DIR}/../../../../crossBuildLib/openSSL_BBB)
+            # Tell CMake where to find the OpenSSL package
+            list(APPEND CMAKE_PREFIX_PATH ${OPENSSL_ROOT_DIR})
+            # Set include path for crossbuild openssl
+            set(OPENSSL_INCLUDE_PATH "${OPENSSL_ROOT_DIR}/include")
+            target_include_directories(${LIBRARY} PUBLIC ${OPENSSL_INCLUDE_PATH})
+        endif()
+        # Link do OpenSSL
+        find_package(OpenSSL REQUIRED)
+        target_link_libraries(${LIBRARY} OpenSSL::SSL OpenSSL::Crypto)
     endif()
 
     set_target_properties(${LIBRARY} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libBuild")
