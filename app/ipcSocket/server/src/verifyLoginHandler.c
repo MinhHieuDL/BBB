@@ -19,13 +19,20 @@ bool verifyPassword(char* pcUserName, char* pcPass)
 
     // find the password on user name
     char* pStoredPass = findPswOnUser(pcUserName);
-    
     // Hash and compare the received password
-    unsigned char hash[EVP_MAX_MD_SIZE];
+    int iHashSize = getHashSize();
+    unsigned char hash[iHashSize];
     if(pStoredPass) {
         if(encodePsw(pcPass, hash))
-        {
-            bRet = (memcmp(hash, pStoredPass, EVP_MAX_MD_SIZE) == 0);
+        {   
+            // format the hash to binary string
+            char binHash[iHashSize * 2 + 1];
+            memset(binHash, 0, sizeof(binHash));
+            for (unsigned int i = 0; i < iHashSize; i++) 
+            {
+                sprintf(binHash + strlen(binHash), "%02x", hash[i]);
+            }
+            bRet = (strcmp(pStoredPass,binHash) == 0);
         }
         free(pStoredPass);
     }
@@ -55,10 +62,10 @@ char* findPswOnUser(char* pcUsername)
                 if(strcmp(pUser, pcUsername) == 0)
                 {
                     pPsw = parseCSVToken(pLine, DBDelim, PSW_POS);
-                    free((void*)pUser); // Cast to void* before freeing
+                    free((void*)pUser); 
                     break;
                 }
-                free((void*)pUser); // Cast to void* before freeing
+                free((void*)pUser);
             }
             free(pLine);
             pLine = NULL;
@@ -68,5 +75,5 @@ char* findPswOnUser(char* pcUsername)
     free(pLine);
     fclose(pFp);
 
-    return (char*)pPsw; // Cast to char* to match the return type
+    return (char*)pPsw;
 }

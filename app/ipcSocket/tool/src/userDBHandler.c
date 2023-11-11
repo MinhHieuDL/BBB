@@ -26,18 +26,22 @@ void updateDB(const char* pcDBFile)
         {
             case 'a':
             {
+                // Request user and psw from user
                 char user[MAX_USER_SIZE];
                 char passwd[MAX_PASSWORD_SIZE];
                 printf("user: ");
                 scanf(" %s", user);
                 printf("password: ");
                 scanf(" %s", passwd);
-                unsigned char hash[EVP_MAX_MD_SIZE];
+
+                int iHashSize = getHashSize();
+                unsigned char hash[iHashSize];
                 if(encodePsw(passwd, hash))
                 {
-                    char newLineDB[MAX_USER_SIZE + EVP_MAX_MD_SIZE * 2 + 1];
+                    char newLineDB[MAX_USER_SIZE + iHashSize * 2 + 1 + 1]; // +1 for ',' and +1 for null terminator
+                    memset(newLineDB, 0, sizeof(newLineDB)); 
                     sprintf(newLineDB, "%s,", user);
-                    for (unsigned int i = 0; i < EVP_MD_size(EVP_sha256()); i++) 
+                    for (unsigned int i = 0; i < iHashSize; i++) 
                     {
                         sprintf(newLineDB + strlen(newLineDB), "%02x", hash[i]);
                     }
