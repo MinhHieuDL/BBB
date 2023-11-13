@@ -11,7 +11,7 @@ bool readNextLine(FILE* pFile, char** pBuff) {
     // Remove trailing newline character
     size_t lineLen = strlen(*pBuff);
     if (lineLen > 0 && (*pBuff)[lineLen - 1] == '\n') {
-        pBuff[lineLen - 1] = '\0';
+        (*pBuff)[lineLen - 1] = '\0';
     }
 
     return true;

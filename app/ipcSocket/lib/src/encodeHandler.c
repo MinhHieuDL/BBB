@@ -31,3 +31,8 @@ bool encodePsw(const char *password, unsigned char *hash)
     EVP_MD_CTX_free(mdctx);
     return true;
 }
+
+unsigned int getHashSize()
+{
+    return EVP_MD_size(EVP_sha256());
+}

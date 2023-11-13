@@ -15,6 +15,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ../lib/include
 )
 
+# Handling user libraries
+# Set the option to indicate that using cross-compiled
+option(OPENSSL_CROSS_COMPILE "Indicate cross-compiled to user libraries builder" OFF)
+
 # Build user libraries
 add_subdirectory(../lib ${CMAKE_BINARY_DIR}/libBuild)
 

@@ -7,9 +7,6 @@ set(SRC_FILES
     src/userDBHandler.c
 )
 
-# Build user libraries
-add_subdirectory(../lib ${CMAKE_BINARY_DIR}/libBuild)
-
 # Add executable
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 
@@ -19,9 +16,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ../lib/include
 )
 
-# Link with OpenSSL
-find_package(OpenSSL REQUIRED)
-target_link_libraries(${PROJECT_NAME} OpenSSL::SSL OpenSSL::Crypto)
+# Handling user libraries
+# Set the option to indicate that using cross-compiled
+option(OPENSSL_CROSS_COMPILE "Indicate cross-compiled to user libraries builder" OFF)
+
+# Build user libraries
+add_subdirectory(../lib ${CMAKE_BINARY_DIR}/libBuild)
 
 # Link with user libraries
 target_link_libraries(${PROJECT_NAME} 
