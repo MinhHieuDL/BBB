@@ -110,6 +110,7 @@ buildHandler(){
 # parsing option argument
 ARG_LIST=$(getopt -o hvcb: --long help,verbose,clean,build: -- "$@")
 if [[ $? -ne 0 ]]; then
+    usage
     exit 1
 fi
 
