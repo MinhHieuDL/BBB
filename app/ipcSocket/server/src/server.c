@@ -14,7 +14,7 @@
 volatile sig_atomic_t terminate = 0;
 
 void sigint_handler(int signum);
-void loginHandling(void* iChannel);
+void* loginHandling(void* iChannel);
 
 int main(void)
 {
@@ -57,12 +57,12 @@ int main(void)
     return 0;
 }
 
-void loginHandling(void* iChannel)
+void* loginHandling(void* iChannel)
 {
     // read message from client
     printf("Client connected! Wait for login authentication ...\n");
     loginMsg recMsg = {};
-    if( !ReadLoginMSG(iChannel, &recMsg) ) {
+    if( !ReadLoginMSG(*((int*)iChannel), &recMsg) ) {
         exit(EXIT_FAILURE);
     }
 
@@ -74,12 +74,12 @@ void loginHandling(void* iChannel)
         pcResMsg = "Login failed";
 
     // send message to server
-    if(send(iChannel, pcResMsg, strlen(pcResMsg), 0) < 0) {
+    if(send(*((int*)iChannel), pcResMsg, strlen(pcResMsg), 0) < 0) {
         perror("send response msg failed");
     }
 
     /* close socket and clean up */
-	close(iChannel);
+	close(*((int*)iChannel));
 	pthread_exit(0);
 }
 

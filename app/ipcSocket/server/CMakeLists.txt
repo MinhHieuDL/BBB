@@ -34,6 +34,7 @@ target_link_libraries(${PROJECT_NAME}
     fileHandler
     csvHandler
     remoteHaShaHandler
+    pthread
 )
 
 # Specify any other compiler flags or options as needed
