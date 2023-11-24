@@ -2,11 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <string.h>
 #include "remoteHaShaHandler.h"
 #include "verifyLoginHandler.h"
 
 #define PORT 8080
+
+void loginHandling(void* iChannel);
 
 int main(void)
 {
@@ -25,15 +28,30 @@ int main(void)
     printf("Set up success\n");
     printf("Wait for client connect ...\n");
 
-    // wait for client connect
-    if( !WaitForClientConnect(iServerDes, address, &iNewChanDes) ) {
-        exit(EXIT_FAILURE);
+    while(1) {
+        // wait for client connect
+        if( !WaitForClientConnect(iServerDes, address, &iNewChanDes) ) {
+            perror("connection failed! Retry ...");
+        }
+
+        pthread_t sniffer_thread;
+        if(pthread_create(&sniffer_thread, NULL, loginHandling, (void*) &iNewChanDes) < 0) {
+            perror("pthread_create failed!");
+            exit(EXIT_FAILURE); 
+        }
     }
-    
+
+    // Close the listening socket
+    shutdown(iServerDes, SHUT_RDWR);
+    return 0;
+}
+
+void loginHandling(void* iChannel)
+{
     // read message from client
     printf("Client connected! Wait for login authentication ...\n");
     loginMsg recMsg = {};
-    if( !ReadLoginMSG(iNewChanDes, &recMsg) ) {
+    if( !ReadLoginMSG(iChannel, &recMsg) ) {
         exit(EXIT_FAILURE);
     }
 
@@ -45,14 +63,11 @@ int main(void)
         pcResMsg = "Login failed";
 
     // send message to server
-    if(send(iNewChanDes, pcResMsg, strlen(pcResMsg), 0) < 0) {
+    if(send(iChannel, pcResMsg, strlen(pcResMsg), 0) < 0) {
         perror("send response msg failed");
-    }   
-    
-    // Clean up resource
-    // Close new socket channel
-    close(iNewChanDes);
-    // Close the listening socket
-    shutdown(iServerDes, SHUT_RDWR);
-    return 0;
+    }
+
+    /* close socket and clean up */
+	close(iChannel);
+	pthread_exit(0);
 }
