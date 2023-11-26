@@ -5,6 +5,7 @@
 #include <pthread.h>
 #include <string.h>
 #include <signal.h>
+#include <sys/time.h>
 #include "remoteHaShaHandler.h"
 #include "verifyLoginHandler.h"
 
@@ -39,16 +40,39 @@ int main(void)
     printf("Set up success\n");
     printf("Wait for client connect ...\n");
 
+    // Set up to check the readiness of server file descriptor
+    struct timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+    
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(iServerDes, &readfds);
+
     while(!terminate) {
-        // wait for client connect
-        if( !WaitForClientConnect(iServerDes, address, &iNewChanDes) ) {
-            perror("connection failed! Retry ...");
+        int activity = select(iServerDes + 1, &readfds, NULL, NULL, &timeout);
+
+        if(activity == -1) {
+            perror("select() failed");
+            exit(EXIT_FAILURE);
+        } else if (activity == 0) {
+            // no incomming request during 'timeout', continue to check if 
+            // any terminal request from user
+            continue;
         }
 
-        pthread_t sniffer_thread;
-        if(pthread_create(&sniffer_thread, NULL, loginHandling, (void*) &iNewChanDes) < 0) {
-            perror("pthread_create failed!");
-            exit(EXIT_FAILURE); 
+        printf("Request received\n");
+
+        // iServerDes ready for reading, accept the request and
+        // create thread to handling client 
+        if( !WaitForClientConnect(iServerDes, address, &iNewChanDes) ) {
+            perror("connection failed! Retry ...");
+        } else {
+            pthread_t sniffer_thread;
+            if(pthread_create(&sniffer_thread, NULL, loginHandling, (void*) &iNewChanDes) < 0) {
+                perror("pthread_create failed!");
+                exit(EXIT_FAILURE); 
+            }
         }
     }
 
