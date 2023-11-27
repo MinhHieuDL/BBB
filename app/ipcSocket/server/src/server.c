@@ -83,10 +83,12 @@ int main(void)
 
 void* loginHandling(void* iChannel)
 {
+    int localChan = *(int*)iChannel;
     // read message from client
-    printf("Client connected! Wait for login authentication ...\n");
+    fflush(stdout);
+    printf("Client connected - file description: %d --- ! Wait for login authentication ...\n", localChan);
     loginMsg recMsg = {};
-    if( !ReadLoginMSG(*((int*)iChannel), &recMsg) ) {
+    if( !ReadLoginMSG(localChan, &recMsg) ) {
         exit(EXIT_FAILURE);
     }
 
@@ -98,12 +100,13 @@ void* loginHandling(void* iChannel)
         pcResMsg = "Login failed";
 
     // send message to server
-    if(send(*((int*)iChannel), pcResMsg, strlen(pcResMsg), 0) < 0) {
+    if(send(localChan, pcResMsg, strlen(pcResMsg), 0) < 0) {
+        printf("failed on: %d channel\n", localChan);
         perror("send response msg failed");
     }
-
+    
     /* close socket and clean up */
-	close(*((int*)iChannel));
+	close(localChan);
 	pthread_exit(0);
 }
 
