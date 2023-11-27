@@ -42,26 +42,26 @@ int main(void)
 
     // Set up to check the readiness of server file descriptor
     struct timeval timeout;
-    timeout.tv_sec = 1;
-    timeout.tv_usec = 0;
-    
+    // Create file descriptor set
     fd_set readfds;
-    FD_ZERO(&readfds);
-    FD_SET(iServerDes, &readfds);
-
+    
     while(!terminate) {
+        // set to track server file description  
+        FD_ZERO(&readfds);
+        FD_SET(iServerDes, &readfds);
+        // set timeout to keep track
+        timeout.tv_sec = 5;
+        timeout.tv_usec = 0;
+    
         int activity = select(iServerDes + 1, &readfds, NULL, NULL, &timeout);
 
         if(activity == -1) {
             perror("select() failed");
             exit(EXIT_FAILURE);
         } else if (activity == 0) {
-            // no incomming request during 'timeout', continue to check if 
-            // any terminal request from user
+            // printf("No incomming request - time: %u\n", (unsigned)time(NULL));
             continue;
         }
-
-        printf("Request received\n");
 
         // iServerDes ready for reading, accept the request and
         // create thread to handling client 
