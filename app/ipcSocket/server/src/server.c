@@ -11,11 +11,16 @@
 
 #define PORT 8080
 
+typedef struct loginArg{
+    int iChanel;
+    char ipAddr[INET6_ADDRSTRLEN];
+}loginArg;
+
 // Global variable to track if termination signal received
 volatile sig_atomic_t terminate = 0;
 
 void sigint_handler(int signum);
-void* loginHandling(void* iChannel);
+void* loginHandling(void* arg);
 
 int main(void)
 {
@@ -64,12 +69,19 @@ int main(void)
         }
 
         // iServerDes ready for reading, accept the request and
-        // create thread to handling client 
-        if( !WaitForClientConnect(iServerDes, address, &iNewChanDes) ) {
+        // create thread to handling client
+        struct sockaddr_in clientAddress; 
+        if( !WaitForClientConnect(iServerDes, &clientAddress, &iNewChanDes) ) {
             perror("connection failed! Retry ...");
         } else {
+            // print out the client ip address
+            loginArg* pThreadArg = malloc(sizeof(loginArg));
+            inet_ntop(AF_INET, &clientAddress.sin_addr, pThreadArg->ipAddr, sizeof(pThreadArg->ipAddr));
+            printf("Client with ip: %s connected\n", pThreadArg->ipAddr);
+            // create thread to handle client request
+            pThreadArg->iChanel = iNewChanDes;
             pthread_t sniffer_thread;
-            if(pthread_create(&sniffer_thread, NULL, loginHandling, (void*) &iNewChanDes) < 0) {
+            if(pthread_create(&sniffer_thread, NULL, loginHandling, (void*) pThreadArg) < 0) {
                 perror("pthread_create failed!");
                 exit(EXIT_FAILURE); 
             }
@@ -81,14 +93,14 @@ int main(void)
     return 0;
 }
 
-void* loginHandling(void* iChannel)
+void* loginHandling(void* arg)
 {
-    int localChan = *(int*)iChannel;
+    loginArg* localArg = (loginArg*)arg;
     // read message from client
     fflush(stdout);
-    printf("Client connected - file description: %d --- ! Wait for login authentication ...\n", localChan);
+    printf("Wait for login authentication ...\n");
     loginMsg recMsg = {};
-    if( !ReadLoginMSG(localChan, &recMsg) ) {
+    if( !ReadLoginMSG(localArg->iChanel, &recMsg) ) {
         exit(EXIT_FAILURE);
     }
 
@@ -100,13 +112,17 @@ void* loginHandling(void* iChannel)
         pcResMsg = "Login failed";
 
     // send message to server
-    if(send(localChan, pcResMsg, strlen(pcResMsg), 0) < 0) {
-        printf("failed on: %d channel\n", localChan);
+    if(send(localArg->iChanel, pcResMsg, strlen(pcResMsg), 0) < 0) {
+        printf("send data to client with ip: %s failed\n", localArg->ipAddr);
         perror("send response msg failed");
     }
     
+    // print status of client login
+    printf("client with ip: %s - %s with user: %s\n", localArg->ipAddr, pcResMsg, recMsg.pcUserLogin);
+
     /* close socket and clean up */
-	close(localChan);
+	close(localArg->iChanel);
+    free(arg);
 	pthread_exit(0);
 }
 
