@@ -30,7 +30,7 @@ foreach(LIBRARY ${LIBRARIES})
         endif()
         # Link do OpenSSL
         find_package(OpenSSL REQUIRED)
-        target_link_libraries(${LIBRARY} OpenSSL::SSL OpenSSL::Crypto)
+        target_link_libraries(${LIBRARY} PUBLIC OpenSSL::SSL OpenSSL::Crypto)
     endif()
 
     set_target_properties(${LIBRARY} PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libBuild")

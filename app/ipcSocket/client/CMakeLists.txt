@@ -23,7 +23,7 @@ option(OPENSSL_CROSS_COMPILE "Indicate cross-compiled to user libraries builder"
 add_subdirectory(../lib ${CMAKE_BINARY_DIR}/libBuild)
 
 # Link with user libraries
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME} PRIVATE
     remoteHaShaHandler
 )
 
