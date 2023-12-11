@@ -75,7 +75,7 @@ int main(void)
             perror("connection failed! Retry ...");
         } else {
             // print out the client ip address
-            loginArg* pThreadArg = malloc(sizeof(loginArg));
+            loginArg* pThreadArg = (loginArg*)malloc(sizeof(loginArg));
             inet_ntop(AF_INET, &clientAddress.sin_addr, pThreadArg->ipAddr, sizeof(pThreadArg->ipAddr));
             printf("Client with ip: %s connected\n", pThreadArg->ipAddr);
             // create thread to handle client request

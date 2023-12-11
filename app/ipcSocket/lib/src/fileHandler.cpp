@@ -72,7 +72,7 @@ void printFile(const char* pFile) {
     while (readNextLine(pFp, &pLine)) {
         if(pLine)
         {
-            printf("%s", pLine);
+            printf("%s\n", pLine);
             free(pLine);
             pLine = NULL;
         }

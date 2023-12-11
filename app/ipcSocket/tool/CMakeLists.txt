@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.0)
-project(DBTool)
+cmake_minimum_required(VERSION 3.22)
+project(DBTool LANGUAGES CXX)
 
 # Set source files
 set(SRC_FILES
-    src/main.c
-    src/userDBHandler.c
+    src/main.cpp
+    src/userDBHandler.cpp
 )
 
 # Add executable
@@ -24,7 +24,7 @@ option(OPENSSL_CROSS_COMPILE "Indicate cross-compiled to user libraries builder"
 add_subdirectory(../lib ${CMAKE_BINARY_DIR}/libBuild)
 
 # Link with user libraries
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME} PRIVATE 
     encodeHandler
     fileHandler
 )

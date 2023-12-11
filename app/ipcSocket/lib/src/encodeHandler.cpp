@@ -1,4 +1,5 @@
 #include "encodeHandler.h"
+#include <openssl/evp.h>
 #include <string.h>
 
 bool encodePsw(const char *password, unsigned char *hash)

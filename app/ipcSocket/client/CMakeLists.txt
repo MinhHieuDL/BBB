@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
-project(SocketClient)
+cmake_minimum_required(VERSION 3.22)
+project(SocketClient LANGUAGES CXX)
 
 # Set source files
 set(SRC_FILES
-    src/client.c
+    src/client.cpp
 )
 
 # Add executable
@@ -23,7 +23,7 @@ option(OPENSSL_CROSS_COMPILE "Indicate cross-compiled to user libraries builder"
 add_subdirectory(../lib ${CMAKE_BINARY_DIR}/libBuild)
 
 # Link with user libraries
-target_link_libraries(${PROJECT_NAME} 
+target_link_libraries(${PROJECT_NAME} PRIVATE
     remoteHaShaHandler
 )
 
