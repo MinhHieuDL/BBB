@@ -1,15 +1,15 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.22)
 
 # Set cross toolchain
-set(CMAKE_TOOLCHAIN_FILE ../Toolchain/beaglebone_black.toolchain.cmake)
+set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../Toolchain/beaglebone_black.toolchain.cmake)
 
 # Define project name
-project(socketServer)
+project(socketServer LANGUAGES CXX)
 
 # Set source files
 set(SRC_FILES
-    src/server.c
-    src/verifyLoginHandler.c
+    src/server.cpp
+    src/verifyLoginHandler.cpp
 )
 
 # Add executable
