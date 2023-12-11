@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.0)
-project(User_Lib)
+cmake_minimum_required(VERSION 3.22)
+project(User_Lib LANGUAGES CXX)
 
 # Define the list of libraries
 set(LIBRARIES
@@ -12,7 +12,7 @@ set(LIBRARIES
 # Iterate over the libraries and create them
 foreach(LIBRARY ${LIBRARIES})
     # Set source files for the current library
-    set(SRC_FILES "src/${LIBRARY}.c")
+    set(SRC_FILES "src/${LIBRARY}.cpp")
 
     # Add the library and set its properties
     add_library(${LIBRARY} SHARED ${SRC_FILES})
