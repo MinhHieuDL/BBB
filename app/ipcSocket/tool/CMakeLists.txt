@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.0)
-project(DBTool)
+cmake_minimum_required(VERSION 3.22)
+project(DBTool LANGUAGES CXX)
 
 # Set source files
 set(SRC_FILES
-    src/main.c
-    src/userDBHandler.c
+    src/main.cpp
+    src/userDBHandler.cpp
 )
 
 # Add executable
