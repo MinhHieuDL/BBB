@@ -1,9 +1,9 @@
-cmake_minimum_required(VERSION 3.0)
-project(SocketClient)
+cmake_minimum_required(VERSION 3.22)
+project(SocketClient LANGUAGES CXX)
 
 # Set source files
 set(SRC_FILES
-    src/client.c
+    src/client.cpp
 )
 
 # Add executable
