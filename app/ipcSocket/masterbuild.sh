@@ -87,7 +87,7 @@ build(){
     cmake -B "$BUILD_DIR" "$APP_DIR"
 
     # Run make to build the application
-    make -C "$BUILD_DIR"
+    cmake --build "$BUILD_DIR"
     log "build target: ${1} done"
 }
 
