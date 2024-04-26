@@ -13,7 +13,7 @@ else
 	PUBLIC_DRIVER_DIR=$(PWD)/../publicDriver
 
 default:
-	${MAKE} ARCH=arm CROSS_COMPILE=${CC} -C ${KERNEL_DIR} M=${PWD} -j${CORE} modules
+	${MAKE} ARCH=arm CROSS_COMPILE=${CC} -C ${KERNEL_DIR} M=${PWD} -j${CORE} modules EXTRA_CFLAGS=-std=gnu99
 	# copy result to public folder
 	mkdir -p ${PUBLIC_DRIVER_DIR}
 	cp *.ko ${PUBLIC_DRIVER_DIR}
