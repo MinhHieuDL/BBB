@@ -4,6 +4,20 @@
 #include <linux/types.h>
 #include <linux/fs.h>
 
+struct scull_qset {
+	void **data;
+	struct scull_qset *next;
+};
+
+struct scull_dev {
+    struct scull_qset *m_pData;
+    int m_iQuantum;
+    int m_iQset;
+    unsigned long m_ulSize;
+    unsigned int m_iAccessKey;
+    struct cdev cdev;
+}
+
 /* Scull file operatios*/
 
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count,

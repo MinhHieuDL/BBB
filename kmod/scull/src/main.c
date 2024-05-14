@@ -25,6 +25,25 @@ loff_t  scull_llseek(struct file *filp, loff_t off, int whence)
     return newpos;
 }
 
+int scull_open(struct inode *inode, struct file *filp)
+{
+    return 0;
+}
+
+int scull_release(struct inode *inode, struct file *filp)
+{
+	return 0;
+}
+
+struct file_operations scull_fops = {
+    .owner = THIS_MODULE,
+    .read  = scull_read,
+    .write = scull_write,
+    .llseak = scull_llseek,
+    .open = scull_open,
+    .release = scull_release,
+}
+
 int scull_init_module(void)
 {
     return 0;
