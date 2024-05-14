@@ -1,8 +1,16 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/moduleparam.h>
-#include <linux/fs.h>
+#include <linux/cdev.h>
 #include "scull.h"
+
+int g_iScull_major =   SCULL_MAJOR;
+int g_iScull_minor =   0;
+int g_iScull_nr_devs = SCULL_NR_DEVS;	/* number of bare scull devices */
+
+module_param(g_iScull_major, int, S_IRUGO);
+module_param(g_iScull_minor, int, S_IRUGO);
+module_param(g_iScull_nr_devs, int, S_IRUGO);
 
 MODULE_AUTHOR("mhle");
 MODULE_LICENSE("Dual BSD/GPL");
@@ -39,9 +47,22 @@ struct file_operations scull_fops = {
     .owner = THIS_MODULE,
     .read  = scull_read,
     .write = scull_write,
-    .llseak = scull_llseek,
+    .llseek = scull_llseek,
     .open = scull_open,
     .release = scull_release,
+};
+
+static void scull_setup_cdev(struct scull_dev *pDev, int iIndex)
+{
+    int err;
+    unsigned uiDevNo = MKDEV(g_iScull_major, g_iScull_minor + iIndex);
+
+    cdev_init(&pDev->cdev, &scull_fops);
+    pDev->cdev.owner = THIS_MODULE;
+    pDev->cdev.ops = &scull_fops;
+    err = cdev_add(&pDev->cdev, uiDevNo, 1);
+    if(err)
+        printk(KERN_NOTICE "Error %d adding scull%d", err, iIndex);
 }
 
 int scull_init_module(void)
