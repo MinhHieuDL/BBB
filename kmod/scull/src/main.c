@@ -2,6 +2,8 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/cdev.h>
+#include <linux/slab.h>  
+#include <linux/errno.h>
 #include "scull.h"
 
 int g_iScull_major =   SCULL_MAJOR;
@@ -14,6 +16,8 @@ module_param(g_iScull_nr_devs, int, S_IRUGO);
 
 MODULE_AUTHOR("mhle");
 MODULE_LICENSE("Dual BSD/GPL");
+
+struct scull_dev *g_pScullDev;
 
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
@@ -52,28 +56,65 @@ struct file_operations scull_fops = {
     .release = scull_release,
 };
 
+void scull_cleanup_module(void)
+{
+
+}
+
 static void scull_setup_cdev(struct scull_dev *pDev, int iIndex)
 {
     int err;
-    unsigned uiDevNo = MKDEV(g_iScull_major, g_iScull_minor + iIndex);
+    int iDevNo = MKDEV(g_iScull_major, g_iScull_minor + iIndex);
 
     cdev_init(&pDev->cdev, &scull_fops);
     pDev->cdev.owner = THIS_MODULE;
     pDev->cdev.ops = &scull_fops;
-    err = cdev_add(&pDev->cdev, uiDevNo, 1);
+    err = cdev_add(&pDev->cdev, iDevNo, 1);
     if(err)
         printk(KERN_NOTICE "Error %d adding scull%d", err, iIndex);
 }
 
 int scull_init_module(void)
 {
-    return 0;
+    int iResult;
+    dev_t devNo = 0;
+
+    // Get device number for device 
+    if (g_iScull_major) {
+        devNo = MKDEV(g_iScull_major, g_iScull_minor);
+        iResult = register_chrdev_region(devNo, g_iScull_nr_devs, "scull"); 
+    }
+    else {
+        iResult = alloc_chrdev_region(&devNo, g_iScull_minor, g_iScull_nr_devs, "scull");
+		g_iScull_major = MAJOR(devNo);
+    }
+
+    if (iResult < 0) {
+	    printk(KERN_WARNING "scull: can't get major %d\n", g_iScull_minor);
+	    return iResult;
+	}
+
+    // allocate device
+    g_pScullDev = kmalloc(g_iScull_nr_devs * sizeof(struct scull_dev), GFP_KERNEL);
+    if(!g_pScullDev) {
+        iResult = -ENOMEM;
+		goto fail; 
+    }
+    memset(g_pScullDev, 0, g_iScull_nr_devs * sizeof(struct scull_dev));
+
+    // init for each device
+    for(int i = 0; i < g_iScull_nr_devs; i++) {
+        scull_setup_cdev(&g_pScullDev[i], i);
+    }
+
+    return 0; // succeed
+
+    fail:
+	    scull_cleanup_module();
+	    return iResult;
 }
 
-void scull_cleanup_module(void)
-{
 
-}
 
 module_init(scull_init_module);
 module_exit(scull_cleanup_module);
