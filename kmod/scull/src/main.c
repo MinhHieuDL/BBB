@@ -4,6 +4,7 @@
 #include <linux/cdev.h>
 #include <linux/slab.h>  
 #include <linux/errno.h>
+#include <linux/kernel.h>
 #include "scull.h"
 
 int g_iScull_major =   SCULL_MAJOR;
@@ -39,6 +40,11 @@ loff_t  scull_llseek(struct file *filp, loff_t off, int whence)
 
 int scull_open(struct inode *inode, struct file *filp)
 {
+    struct scull_dev *pScullDev;
+    
+    pScullDev = container_of(inode->i_cdev, struct scull_dev, m_cdev);
+    filp->private_data = pScullDev;
+
     return 0;
 }
 
