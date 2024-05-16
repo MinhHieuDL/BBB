@@ -56,7 +56,7 @@ struct file_operations scull_fops = {
     .release = scull_release,
 };
 
-void scull_cleanup_module(void)
+static void __exit scull_cleanup_module(void)
 {
 
 }
@@ -74,7 +74,7 @@ static void scull_setup_cdev(struct scull_dev *pDev, int iIndex)
         printk(KERN_NOTICE "Error %d adding scull%d", err, iIndex);
 }
 
-int scull_init_module(void)
+static int __init scull_init_module(void)
 {
     int iResult;
     dev_t devNo = 0;

@@ -15,7 +15,7 @@ else
 	LDDINC := $(PWD)/inc
 
 default:
-	${MAKE} ARCH=arm CROSS_COMPILE=${CC} -C ${KERNEL_DIR} M=${PWD} -j${CORE} EXTRA_CFLAGS="-std=gnu99 -I${LDDINC}" modules
+	${MAKE} ARCH=arm CROSS_COMPILE=${CC} -C ${KERNEL_DIR} M=${PWD} -j${CORES} EXTRA_CFLAGS="-std=gnu99 -I${LDDINC}" modules
 	# copy result to public folder
 	mkdir -p ${PUBLIC_DRIVER_DIR}
 	cp src/*.ko ${PUBLIC_DRIVER_DIR}/scull.ko
