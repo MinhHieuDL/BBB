@@ -22,7 +22,7 @@ struct scull_dev {
     int m_iQset;
     unsigned long m_ulSize;
     unsigned int m_iAccessKey;
-    struct cdev cdev;
+    struct cdev m_cdev;
 };
 
 /* Scull file operatios*/

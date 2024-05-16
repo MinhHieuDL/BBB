@@ -65,7 +65,7 @@ static void __exit scull_cleanup_module(void)
     {
         for(int i = 0; i < g_iScull_nr_devs; i++)
         {
-            cdev_del(&g_pScullDev[i].cdev);
+            cdev_del(&g_pScullDev[i].m_cdev);
         }
         kfree(g_pScullDev);
     }
@@ -79,10 +79,10 @@ static void scull_setup_cdev(struct scull_dev *pDev, int iIndex)
     int err;
     int iDevNo = MKDEV(g_iScull_major, g_iScull_minor + iIndex);
 
-    cdev_init(&pDev->cdev, &scull_fops);
-    pDev->cdev.owner = THIS_MODULE;
-    pDev->cdev.ops = &scull_fops;
-    err = cdev_add(&pDev->cdev, iDevNo, 1);
+    cdev_init(&pDev->m_cdev, &scull_fops);
+    pDev->m_cdev.owner = THIS_MODULE;
+    pDev->m_cdev.ops = &scull_fops;
+    err = cdev_add(&pDev->m_cdev, iDevNo, 1);
     if(err)
         printk(KERN_NOTICE "Error %d adding scull%d", err, iIndex);
 }
