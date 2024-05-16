@@ -58,7 +58,20 @@ struct file_operations scull_fops = {
 
 static void __exit scull_cleanup_module(void)
 {
+    dev_t devNo = MKDEV(g_iScull_major, g_iScull_minor);
 
+    // remove all scull devices
+    if(g_pScullDev)
+    {
+        for(int i = 0; i < g_iScull_nr_devs; i++)
+        {
+            cdev_del(&g_pScullDev[i].cdev);
+        }
+        kfree(g_pScullDev);
+    }
+
+    // unregister device number
+    unregister_chrdev_region(devNo, g_iScull_nr_devs);
 }
 
 static void scull_setup_cdev(struct scull_dev *pDev, int iIndex)
