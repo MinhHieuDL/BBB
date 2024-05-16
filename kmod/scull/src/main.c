@@ -10,10 +10,14 @@
 int g_iScull_major =   SCULL_MAJOR;
 int g_iScull_minor =   0;
 int g_iScull_nr_devs = SCULL_NR_DEVS;	/* number of bare scull devices */
+int g_iScull_quantum = SCULL_QUANTUM;
+int g_iScull_qset = SCULL_QSET;
 
 module_param(g_iScull_major, int, S_IRUGO);
 module_param(g_iScull_minor, int, S_IRUGO);
 module_param(g_iScull_nr_devs, int, S_IRUGO);
+module_param(g_iScull_quantum, int, S_IRUGO);
+module_param(g_iScull_qset, int, S_IRUGO);
 
 MODULE_AUTHOR("mhle");
 MODULE_LICENSE("Dual BSD/GPL");

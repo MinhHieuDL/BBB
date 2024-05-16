@@ -11,6 +11,15 @@
 #ifndef SCULL_NR_DEVS
 #define SCULL_NR_DEVS 4    /* scull0 through scull3 */
 #endif
+
+#ifndef SCULL_QUANTUM
+#define SCULL_QUANTUM 4000
+#endif
+
+#ifndef SCULL_QSET
+#define SCULL_QSET    1000
+#endif
+
 struct scull_qset {
 	void **data;
 	struct scull_qset *next;
