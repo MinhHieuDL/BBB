@@ -132,6 +132,8 @@ static int __init scull_init_module(void)
 
     // init for each device
     for(int i = 0; i < g_iScull_nr_devs; i++) {
+        g_pScullDev[i].m_iQuantum = g_iScull_quantum;
+        g_pScullDev[i].m_iQset = g_iScull_qset;
         scull_setup_cdev(&g_pScullDev[i], i);
     }
 
