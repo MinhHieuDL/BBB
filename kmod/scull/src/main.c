@@ -26,6 +26,22 @@ struct scull_dev *g_pScullDev;
 
 int scull_trim(struct scull_dev *pDev)
 {
+    struct scull_qset *pNextQset, *pCurQSet;
+    int iQsetSize = pDev->m_iQset;
+    for(pCurQSet = pDev->m_pData; pCurQSet; pCurQSet = pNextQset)
+    {
+        if(pCurQSet->m_ppData)
+        {
+            for(int i = 0; i < iQsetSize; i++)
+                kfree(pCurQSet->m_ppData[i]);
+            kfree(pCurQSet->m_ppData);
+            pCurQSet->m_ppData = NULL;
+        }
+        pNextQset = pCurQSet->m_pNext;
+        kfree(pCurQSet);
+    }
+    pDev->m_ulSize = 0;
+    pDev->m_pData = NULL;
     return 0;
 }
 
@@ -80,6 +96,7 @@ static void __exit scull_cleanup_module(void)
     {
         for(int i = 0; i < g_iScull_nr_devs; i++)
         {
+            scull_trim(g_pScullDev + i);
             cdev_del(&g_pScullDev[i].m_cdev);
         }
         kfree(g_pScullDev);
