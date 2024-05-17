@@ -24,6 +24,11 @@ MODULE_LICENSE("Dual BSD/GPL");
 
 struct scull_dev *g_pScullDev;
 
+int scull_trim(struct scull_dev *pDev)
+{
+    return 0;
+}
+
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
     ssize_t retValue;
