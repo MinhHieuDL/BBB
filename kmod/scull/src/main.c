@@ -223,7 +223,7 @@ struct file_operations scull_fops = {
     .release = scull_release,
 };
 
-static void __exit scull_cleanup_module(void)
+static void scull_cleanup_module(void)
 {
     dev_t devNo = MKDEV(g_iScull_major, g_iScull_minor);
 
