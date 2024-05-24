@@ -103,9 +103,9 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
         goto out;
 
     // Read only up to the end of current quantum
-    count = (count > (iQuantumSize - iBytePos)) ? iQuantumSize - iBytePos : count; 
+    count = (count > iQuantumSize - iBytePos) ? iQuantumSize - iBytePos : count; 
 
-    if(copy_to_user(buf, pScullQset->m_ppData[iArrPos], count) != 0)
+    if(copy_to_user((void*)buf, pScullQset->m_ppData[iArrPos] + iBytePos, count) != 0)
     {
         retValue = -EFAULT;
         goto out;
@@ -119,8 +119,56 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
 {
-    ssize_t retValue;
-    return retValue;
+    struct scull_dev *pDev = filp->private_data;
+    struct scull_qset *pScullQset;
+
+    int iQuantumSize = pDev->m_iQuantum;
+    int iQSetSize = pDev->m_iQset;
+    int iQsetDataSize = iQuantumSize * iQSetSize; 
+    int iItemNum, iRest, iArrPos, iBytePos;
+    
+    ssize_t retValue = -ENOMEM;
+    
+    // find q_set number, array position, byte position to read
+    iItemNum = (long)*f_pos/iQsetDataSize;
+    iRest    = *f_pos - (iItemNum * iQsetDataSize);
+    iArrPos  = iRest / iQuantumSize;
+    iBytePos = iRest % iQuantumSize;
+
+    // get the position to write
+    pScullQset = scull_follow(pDev,iItemNum);
+    if(pScullQset == NULL)
+        goto out;
+    
+    if(pScullQset->m_ppData == NULL)
+    {
+        pScullQset->m_ppData = kmalloc(iQSetSize * sizeof(char *), GFP_KERNEL);
+        if(pScullQset->m_ppData == NULL)
+            goto out;
+        memset(pScullQset->m_ppData, 0, iQsetDataSize * sizeof(char *));
+    }
+
+    if(pScullQset->m_ppData[iArrPos] == NULL)
+    {
+        pScullQset->m_ppData[iArrPos] = kmalloc(iQuantumSize, GFP_KERNEL);
+        if(pScullQset->m_ppData[iArrPos] == NULL)
+            goto out;
+        memset(pScullQset->m_ppData[iArrPos], 0, iQuantumSize);
+    }
+
+    // copy data to user
+    count = (count > iQuantumSize - iBytePos) ? (iQuantumSize - iBytePos) : count;
+
+    if(copy_to_user((void*)buf, pScullQset->m_ppData[iArrPos] + iBytePos, count) != 0)
+    {
+        retValue = -EFAULT;
+        goto out;
+    }
+    *f_pos += count;
+    retValue = count;
+
+    out:
+        return retValue;
 }
 
 loff_t  scull_llseek(struct file *filp, loff_t off, int whence)
