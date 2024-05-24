@@ -169,14 +169,33 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 
     // update qset size
     pDev->m_ulSize = (pDev->m_ulSize < *f_pos) ? *f_pos : pDev->m_ulSize;
-    
+
     out:
         return retValue;
 }
 
 loff_t  scull_llseek(struct file *filp, loff_t off, int whence)
 {
+    struct scull_dev *pDev = filp->private_data;
     loff_t newpos;
+
+    switch (whence)
+    {
+    case 0:  //SEEK_SET
+        newpos = off;
+        break;
+    case 1: //SEEK_CUR
+        newpos = filp->f_pos + off;
+        break;
+    case 2: //SEEK_END
+        newpos = pDev->m_ulSize + off;
+        break;
+    default:
+        return -EINVAL; 
+    }
+    if (newpos < 0) return -EINVAL;
+	filp->f_pos = newpos;
+    
     return newpos;
 }
 
