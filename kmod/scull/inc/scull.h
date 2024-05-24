@@ -33,7 +33,7 @@
 
 struct scull_qset {
 	void **m_ppData;
-	struct scull_qset *m_pNext
+	struct scull_qset *m_pNext;
 };
 
 struct scull_dev {

@@ -2,9 +2,10 @@
 #include <linux/module.h>
 #include <linux/moduleparam.h>
 #include <linux/cdev.h>
-#include <linux/slab.h>  
-#include <linux/errno.h>
-#include <linux/kernel.h>
+#include <linux/slab.h>     /* kmalloc() */
+#include <linux/errno.h>    /* error codes */
+#include <linux/kernel.h>   /* printk() */
+#include <linux/uaccess.h>	/* copy_*_user */
 #include "scull.h"
 
 int g_iScull_major =   SCULL_MAJOR;
@@ -45,10 +46,75 @@ int scull_trim(struct scull_dev *pDev)
     return 0;
 }
 
+struct scull_qset* scull_follow(struct scull_dev *pScullDev, int iIndex)
+{
+    struct scull_qset* pRet = pScullDev->m_pData;
+    // Allocate first qset explicity if need be
+    if(pRet == NULL)
+    {
+        pRet = pScullDev->m_pData = kmalloc(sizeof(struct scull_qset), GFP_KERNEL);
+        if(pRet == NULL)
+            return NULL;
+        memset(pRet, 0, sizeof(struct scull_qset));
+    }
+
+    while(iIndex != 0)
+    {
+        pRet = pRet->m_pNext;
+        if(pRet == NULL)
+        {
+            pRet = pScullDev->m_pData = kmalloc(sizeof(struct scull_qset), GFP_KERNEL);
+            if(pRet == NULL)
+                return NULL;
+            memset(pRet, 0, sizeof(struct scull_qset));
+        }
+        iIndex -= 1;
+    }
+    return pRet;
+}
+
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
-    ssize_t retValue;
-    return retValue;
+    struct scull_dev *pDev = filp->private_data;
+    struct scull_qset *pScullQset;
+
+    int iQuantumSize = pDev->m_iQuantum;
+    int iQSetSize = pDev->m_iQset;
+    int iQsetDataSize = iQuantumSize * iQSetSize; 
+    int iItemNum, iRest, iArrPos, iBytePos;
+    
+    ssize_t retValue = 0;
+
+    if(*f_pos >= pDev->m_ulSize)
+        goto out;
+    if(*f_pos + count > pDev->m_ulSize)
+        count = pDev->m_ulSize - (*f_pos);
+
+    // find q_set number, array position, byte position to read
+    iItemNum = (long)*f_pos/iQsetDataSize;
+    iRest    = *f_pos - (iItemNum * iQsetDataSize);
+    iArrPos  = iRest / iQuantumSize;
+    iBytePos = iRest % iQuantumSize;
+
+    // get the pointer to scull qset at item number
+    pScullQset = scull_follow(pDev, iItemNum);
+
+    if(!pScullQset || !pScullQset->m_ppData || !pScullQset->m_ppData[iArrPos])
+        goto out;
+
+    // Read only up to the end of current quantum
+    count = (count > (iQuantumSize - iBytePos)) ? iQuantumSize - iBytePos : count; 
+
+    if(copy_to_user(buf, pScullQset->m_ppData[iArrPos], count) != 0)
+    {
+        retValue = -EFAULT;
+        goto out;
+    }
+    *f_pos += count; // update file position pointer
+    retValue = count;
+
+    out:
+        return retValue;
 }
 
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
