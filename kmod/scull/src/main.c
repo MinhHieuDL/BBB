@@ -167,6 +167,9 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     *f_pos += count;
     retValue = count;
 
+    // update qset size
+    pDev->m_ulSize = (pDev->m_ulSize < *f_pos) ? *f_pos : pDev->m_ulSize;
+    
     out:
         return retValue;
 }
