@@ -91,8 +91,8 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
         count = pDev->m_ulSize - (*f_pos);
 
     // find q_set number, array position, byte position to read
-    iItemNum = (long)*f_pos/iQsetDataSize;
-    iRest    = *f_pos - (iItemNum * iQsetDataSize);
+    iItemNum = (long)*f_pos / iQsetDataSize;
+    iRest    = *f_pos % iQsetDataSize;
     iArrPos  = iRest / iQuantumSize;
     iBytePos = iRest % iQuantumSize;
 
@@ -130,8 +130,8 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     ssize_t retValue = -ENOMEM;
     
     // find q_set number, array position, byte position to read
-    iItemNum = (long)*f_pos/iQsetDataSize;
-    iRest    = *f_pos - (iItemNum * iQsetDataSize);
+    iItemNum = (long)*f_pos / iQsetDataSize;
+    iRest    = (long)*f_pos % iQsetDataSize;
     iArrPos  = iRest / iQuantumSize;
     iBytePos = iRest % iQuantumSize;
 
