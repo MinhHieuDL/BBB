@@ -92,7 +92,7 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
     // find q_set number, array position, byte position to read
     iItemNum = (long)*f_pos / iQsetDataSize;
-    iRest    = *f_pos % iQsetDataSize;
+    iRest    = (long)*f_pos % iQsetDataSize;
     iArrPos  = iRest / iQuantumSize;
     iBytePos = iRest % iQuantumSize;
 
