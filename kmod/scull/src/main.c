@@ -159,7 +159,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     // copy data to user
     count = (count > iQuantumSize - iBytePos) ? (iQuantumSize - iBytePos) : count;
 
-    if(copy_to_user((void*)buf, pScullQset->m_ppData[iArrPos] + iBytePos, count) != 0)
+    if(copy_from_user(pScullQset->m_ppData[iArrPos] + iBytePos, (void*)buf, count) != 0)
     {
         retValue = -EFAULT;
         goto out;
