@@ -145,7 +145,8 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
         pScullQset->m_ppData = kmalloc(iQSetSize * sizeof(char *), GFP_KERNEL);
         if(pScullQset->m_ppData == NULL)
             goto out;
-        memset(pScullQset->m_ppData, 0, iQsetDataSize * sizeof(char *));
+        }
+        memset(pScullQset->m_ppData, 0, iQSetSize * sizeof(char *));
     }
 
     if(pScullQset->m_ppData[iArrPos] == NULL)
