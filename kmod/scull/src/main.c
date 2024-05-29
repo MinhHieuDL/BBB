@@ -4,6 +4,7 @@
 #include <linux/cdev.h>
 #include <linux/slab.h>     /* kmalloc() */
 #include <linux/errno.h>    /* error codes */
+#include <uapi/asm-generic/errno-base.h>
 #include <linux/kernel.h>   /* printk() */
 #include <linux/uaccess.h>	/* copy_*_user */
 #include "scull.h"
@@ -34,7 +35,10 @@ int scull_trim(struct scull_dev *pDev)
         if(pCurQSet->m_ppData)
         {
             for(int i = 0; i < iQsetSize; i++)
-                kfree(pCurQSet->m_ppData[i]);
+            {
+                if(pCurQSet->m_ppData[i])
+                    kfree(pCurQSet->m_ppData[i]);
+            }
             kfree(pCurQSet->m_ppData);
             pCurQSet->m_ppData = NULL;
         }
@@ -145,7 +149,6 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
         pScullQset->m_ppData = kmalloc(iQSetSize * sizeof(char *), GFP_KERNEL);
         if(pScullQset->m_ppData == NULL)
             goto out;
-        }
         memset(pScullQset->m_ppData, 0, iQSetSize * sizeof(char *));
     }
 
