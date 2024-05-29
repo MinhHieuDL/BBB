@@ -4,6 +4,7 @@
 #include <linux/cdev.h>
 #include <linux/slab.h>     /* kmalloc() */
 #include <linux/errno.h>    /* error codes */
+#include <uapi/asm-generic/errno-base.h>
 #include <linux/kernel.h>   /* printk() */
 #include <linux/uaccess.h>	/* copy_*_user */
 #include "scull.h"
@@ -34,7 +35,10 @@ int scull_trim(struct scull_dev *pDev)
         if(pCurQSet->m_ppData)
         {
             for(int i = 0; i < iQsetSize; i++)
-                kfree(pCurQSet->m_ppData[i]);
+            {
+                if(pCurQSet->m_ppData[i])
+                    kfree(pCurQSet->m_ppData[i]);
+            }
             kfree(pCurQSet->m_ppData);
             pCurQSet->m_ppData = NULL;
         }
@@ -91,8 +95,8 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
         count = pDev->m_ulSize - (*f_pos);
 
     // find q_set number, array position, byte position to read
-    iItemNum = (long)*f_pos/iQsetDataSize;
-    iRest    = *f_pos - (iItemNum * iQsetDataSize);
+    iItemNum = (long)*f_pos / iQsetDataSize;
+    iRest    = (long)*f_pos % iQsetDataSize;
     iArrPos  = iRest / iQuantumSize;
     iBytePos = iRest % iQuantumSize;
 
@@ -130,8 +134,8 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     ssize_t retValue = -ENOMEM;
     
     // find q_set number, array position, byte position to read
-    iItemNum = (long)*f_pos/iQsetDataSize;
-    iRest    = *f_pos - (iItemNum * iQsetDataSize);
+    iItemNum = (long)*f_pos / iQsetDataSize;
+    iRest    = (long)*f_pos % iQsetDataSize;
     iArrPos  = iRest / iQuantumSize;
     iBytePos = iRest % iQuantumSize;
 
@@ -145,7 +149,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
         pScullQset->m_ppData = kmalloc(iQSetSize * sizeof(char *), GFP_KERNEL);
         if(pScullQset->m_ppData == NULL)
             goto out;
-        memset(pScullQset->m_ppData, 0, iQsetDataSize * sizeof(char *));
+        memset(pScullQset->m_ppData, 0, iQSetSize * sizeof(char *));
     }
 
     if(pScullQset->m_ppData[iArrPos] == NULL)
@@ -159,7 +163,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     // copy data to user
     count = (count > iQuantumSize - iBytePos) ? (iQuantumSize - iBytePos) : count;
 
-    if(copy_to_user((void*)buf, pScullQset->m_ppData[iArrPos] + iBytePos, count) != 0)
+    if(copy_from_user(pScullQset->m_ppData[iArrPos] + iBytePos, (void*)buf, count) != 0)
     {
         retValue = -EFAULT;
         goto out;
