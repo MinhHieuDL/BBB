@@ -8,6 +8,7 @@
 #include <linux/kernel.h>   /* printk() */
 #include <linux/uaccess.h>	/* copy_*_user */
 #include "scull.h"
+#include "ulog.h"
 
 int g_iScull_major =   SCULL_MAJOR;
 int g_iScull_minor =   0;
@@ -88,7 +89,7 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
     int iItemNum, iRest, iArrPos, iBytePos;
     
     ssize_t retValue = 0;
-
+    ULog("read device\n");
     if(*f_pos >= pDev->m_ulSize)
         goto out;
     if(*f_pos + count > pDev->m_ulSize)
@@ -133,12 +134,19 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     
     ssize_t retValue = -ENOMEM;
     
+    ULog("write invoked with count %zu at position %lld\n", count, *f_pos);
+
     // find q_set number, array position, byte position to read
     iItemNum = (long)*f_pos / iQsetDataSize;
     iRest    = (long)*f_pos % iQsetDataSize;
     iArrPos  = iRest / iQuantumSize;
     iBytePos = iRest % iQuantumSize;
 
+    ULog("iItemNum: %d - iRest: %d - iArrPos: %d - iBytePos: %d", \
+                    iItemNum, \
+                    iRest,    \
+                    iArrPos,  \
+                    iBytePos);
     // get the position to write
     pScullQset = scull_follow(pDev,iItemNum);
     if(pScullQset == NULL)
@@ -148,7 +156,10 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     {
         pScullQset->m_ppData = kmalloc(iQSetSize * sizeof(char *), GFP_KERNEL);
         if(pScullQset->m_ppData == NULL)
+        {
+            ULog("Allocate pointers to Quantum data failed!\n");
             goto out;
+        }
         memset(pScullQset->m_ppData, 0, iQSetSize * sizeof(char *));
     }
 
@@ -156,7 +167,10 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     {
         pScullQset->m_ppData[iArrPos] = kmalloc(iQuantumSize, GFP_KERNEL);
         if(pScullQset->m_ppData[iArrPos] == NULL)
+        {
+            ULog("Allocate  Quantum data failed\n");
             goto out;
+        }
         memset(pScullQset->m_ppData[iArrPos], 0, iQuantumSize);
     }
 
@@ -206,6 +220,7 @@ loff_t  scull_llseek(struct file *filp, loff_t off, int whence)
 int scull_open(struct inode *inode, struct file *filp)
 {
     struct scull_dev *pScullDev;
+    ULog("Open device\n");
     
     pScullDev = container_of(inode->i_cdev, struct scull_dev, m_cdev);
     filp->private_data = pScullDev;
@@ -215,6 +230,7 @@ int scull_open(struct inode *inode, struct file *filp)
 
 int scull_release(struct inode *inode, struct file *filp)
 {
+    ULog("Release invoked\n");
 	return 0;
 }
 
@@ -230,7 +246,8 @@ struct file_operations scull_fops = {
 static void scull_cleanup_module(void)
 {
     dev_t devNo = MKDEV(g_iScull_major, g_iScull_minor);
-
+    
+    ULog("exit module - major number is: %i\n", g_iScull_major);
     // remove all scull devices
     if(g_pScullDev)
     {
@@ -264,6 +281,7 @@ static int __init scull_init_module(void)
     int iResult;
     dev_t devNo = 0;
 
+    ULog("Init module\n");
     // Get device number for device 
     if (g_iScull_major) {
         devNo = MKDEV(g_iScull_major, g_iScull_minor);
@@ -273,6 +291,8 @@ static int __init scull_init_module(void)
         iResult = alloc_chrdev_region(&devNo, g_iScull_minor, g_iScull_nr_devs, "scull");
 		g_iScull_major = MAJOR(devNo);
     }
+
+    ULog("Major Number: %d\n", g_iScull_major);
 
     if (iResult < 0) {
 	    printk(KERN_WARNING "scull: can't get major %d\n", g_iScull_minor);

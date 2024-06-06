@@ -1,3 +1,14 @@
+# Comment/uncomment the following line to enable/disable debugging
+DEBUG = y
+
+ifeq ($(DEBUG),y)
+	DEBFLAGS = -O -g -DSCULL_DEBUG
+else
+	DEBFLAGS = -O2
+endif
+
+ccflags-y += $(DEBFLAGS)
+
 # if KERNELRELEASE is defined, we've been invoked from the
 # kernel build system and can use its variables.
 # $(info This message will be printed once)
