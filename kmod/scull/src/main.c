@@ -247,7 +247,7 @@ static void scull_cleanup_module(void)
 {
     dev_t devNo = MKDEV(g_iScull_major, g_iScull_minor);
     
-    ULog("exit module - major number is:%i\n", g_iScull_major);
+    ULog("exit module - major number is: %i\n", g_iScull_major);
     // remove all scull devices
     if(g_pScullDev)
     {
