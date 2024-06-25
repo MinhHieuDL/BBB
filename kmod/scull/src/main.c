@@ -90,6 +90,8 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
     
     ssize_t retValue = 0;
     ULog("read device\n");
+    if(down_interruptible(&pDev->m_sema))
+        return -ERESTARTSYS;
     if(*f_pos >= pDev->m_ulSize)
         goto out;
     if(*f_pos + count > pDev->m_ulSize)
@@ -119,6 +121,7 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
     retValue = count;
 
     out:
+        up(&pDev->m_sema);
         return retValue;
 }
 
@@ -135,7 +138,9 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     ssize_t retValue = -ENOMEM;
     
     ULog("write invoked with count %zu at position %lld\n", count, *f_pos);
-
+    if(down_interruptible(&pDev->m_sema))
+        return -ERESTARTSYS;
+        
     // find q_set number, array position, byte position to read
     iItemNum = (long)*f_pos / iQsetDataSize;
     iRest    = (long)*f_pos % iQsetDataSize;
@@ -189,6 +194,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
     pDev->m_ulSize = (pDev->m_ulSize < *f_pos) ? *f_pos : pDev->m_ulSize;
 
     out:
+        up(&pDev->m_sema);
         return retValue;
 }
 
