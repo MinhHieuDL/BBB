@@ -42,6 +42,7 @@ struct scull_dev {
     int m_iQset;
     unsigned long m_ulSize;
     unsigned int m_iAccessKey;
+    struct semaphore m_sema; 
     struct cdev m_cdev;
 };
 
