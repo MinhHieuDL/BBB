@@ -311,6 +311,7 @@ static int __init scull_init_module(void)
     for(int i = 0; i < g_iScull_nr_devs; i++) {
         g_pScullDev[i].m_iQuantum = g_iScull_quantum;
         g_pScullDev[i].m_iQset = g_iScull_qset;
+        sema_init(&g_pScullDev[i].m_sema, 1);
         scull_setup_cdev(&g_pScullDev[i], i);
     }
 
