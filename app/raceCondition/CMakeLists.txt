@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.0)
 project(race)
 
+# Find the threads library (portable way to link pthreads)
+find_package(Threads REQUIRED)
+
 # Set source files
 set(SRC_FILES
     src/race.c
@@ -17,8 +20,14 @@ target_include_directories(${EXECUTABLE_NAME} PRIVATE
     include
 )
 
-# Specify any other compiler flags or options as needed
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wextra")
+# Link pthreads properly (portable across platforms/toolchains)
+target_link_libraries(${EXECUTABLE_NAME} PRIVATE Threads::Threads)
+
+# Compiler warnings 
+target_compile_options(${EXECUTABLE_NAME} PRIVATE
+    -Wall
+    -Wextra
+)
 
 # Set output directories for executables
 set_target_properties(${EXECUTABLE_NAME} PROPERTIES
