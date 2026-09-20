@@ -7,7 +7,7 @@ ifneq (${KERNELRELEASE},)
 # Invoke the kernel build system.
 else
 	KERNEL_DIR := $(PWD)/../../bb-kernel/KERNEL
-	CC := $(PWD)/../../bb-kernel/dl/gcc-8.5.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-
+	CC := $(PWD)/../../bb-kernel/dl/gcc-15.3.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-
 
 	CORES=4
 	PUBLIC_DRIVER_DIR=$(PWD)/../publicDriver
