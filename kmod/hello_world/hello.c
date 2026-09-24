@@ -1,25 +1,21 @@
-#include <linux/init.h>
 #include <linux/module.h>
-#include <linux/moduleparam.h>
+#include <linux/kernel.h> 
+#include <linux/init.h>
 
-MODULE_LICENSE("Dual BSD/GPL");
-
-static char* whom="Mom";
-static int iHowMany = 10;
-module_param(iHowMany, int, S_IRUGO);
-module_param(whom, charp, S_IRUGO);
-
-static int hello_init(void)
+static int __init hello_init(void)
 {
-    for(int i = 0; i < iHowMany; i++)
-        printk(KERN_ALERT "Hello, %s\n", whom);
+    printk(KERN_INFO "hello: module loaded on BBB\n");
     return 0;
 }
 
-static void hello_exit(void)
+static void __exit hello_exit(void)
 {
-    printk(KERN_ALERT "Goodbye, cruel world\n");
+    printk(KERN_INFO "hello: module unloaded\n");
 }
 
 module_init(hello_init);
 module_exit(hello_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("mhle");
+MODULE_DESCRIPTION("First kernel module");  

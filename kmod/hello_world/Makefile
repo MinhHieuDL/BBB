@@ -7,13 +7,13 @@ ifneq (${KERNELRELEASE},)
 # Invoke the kernel build system.
 else
 	KERNEL_DIR := $(PWD)/../../bb-kernel/KERNEL
-	CC := $(PWD)/../../bb-kernel/dl/gcc-8.5.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-
+	CC := $(PWD)/../../bb-kernel/dl/gcc-15.3.0-nolibc/arm-linux-gnueabi/bin/arm-linux-gnueabi-
 
 	CORES=4
 	PUBLIC_DRIVER_DIR=$(PWD)/../publicDriver
 
 default:
-	${MAKE} ARCH=arm CROSS_COMPILE=${CC} -C ${KERNEL_DIR} M=${PWD} -j${CORE} modules EXTRA_CFLAGS=-std=gnu99
+	${MAKE} ARCH=arm CROSS_COMPILE=${CC} -C ${KERNEL_DIR} M=${PWD} -j${CORE} modules 
 	# copy result to public folder
 	mkdir -p ${PUBLIC_DRIVER_DIR}
 	cp *.ko ${PUBLIC_DRIVER_DIR}

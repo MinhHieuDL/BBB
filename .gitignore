@@ -3,3 +3,9 @@ bb-kernel/
 rootfs/
 u-boot/
 toolchain/
+images/
+kmod/publicDriver/
+kmod/kmod.code-workspace
+**/.vscode/
+app/ipcSocket/tool/testFile.csv
+app/ipcSocket/tool/userDB.csv
